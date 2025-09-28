@@ -1,0 +1,63 @@
+# Educational Network - Ignore Large Media Files
+
+# Video Files
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# Audio Files
+*.mp3
+*.wav
+*.m4a
+*.aac
+
+# Image Files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+
+# Environment Files
+.env
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+temp/
+tmp/
+*.tmp
+
+# Output Directories
+*/raw_videos/
+*/raw_audio/
+*/final_scenes/
+*/final_mixed/
+*/rishis_videos/
+*/rishis_audio/
+*/rishis_final/
+*/deer_videos/
+*/deer_audio/
+*/deer_final/
+*/coral_videos/
+*/coral_audio/
+*/coral_final/
+*/micro_videos/
+*/micro_audio/
+*/micro_final/
+*/fungal_videos/
+*/fungal_audio/
+*/fungal_final/
+
+# Generated Files
+*_list.txt
+*_timing.csv
+*_response.json
+
+# Keep Documentation and Scripts
+!*.md
+!*.sh
+!README.md
