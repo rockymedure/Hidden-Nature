@@ -30,14 +30,17 @@ This guide creates 3-minute documentaries with perfect synchronization, visual c
   - Style: 0.7 (high expressiveness)
   - Speed: 1.0
 - [ ] **Measure actual narration durations** for each scene
-- [ ] **Identify scenes that are too short** (under 6s) or too long (over 8s)
-- [ ] **Regenerate problematic scenes** with expanded/condensed narration to hit 6-8s target
+- [ ] **Identify scenes outside 6.0-7.8s range** (tighter tolerance for perfect sync)
+- [ ] **Regenerate problematic scenes** with adjusted word count to hit 6.0-7.8s target
+- [ ] **CRITICAL: Pad ALL narrations to exactly 8.000s** to prevent audio bleeding between scenes
 
 ### **Phase 4: Visual Continuity Planning**
 - [ ] **Define consistent character descriptions** (appearance, coloring, distinctive features)
 - [ ] **Define consistent environment** (same location throughout)
 - [ ] **Plan lighting progression** (dawn → day → sunset → twilight for natural flow)
-- [ ] **Choose consistent seed number** for visual continuity (e.g., 77777)
+- [ ] **Choose seed strategy**:
+  - **Option A: Consistent seed** (e.g., 77777) for maximum character/scene continuity
+  - **Option B: Seed drift** (e.g., 50000→50023) for evolutionary/progressive narratives
 - [ ] **Create detailed prompt templates** with consistency elements
 
 ### **Phase 5: Video Generation**
@@ -52,11 +55,12 @@ This guide creates 3-minute documentaries with perfect synchronization, visual c
 - [ ] **Verify all videos downloaded** successfully
 
 ### **Phase 6: Audio-Video Mixing**
-- [ ] **Mix each scene individually** with proper audio levels:
-  - Veo3 ambient audio: 0.05x volume (subtle background)
-  - Narration audio: 1.5x volume (prominent and clear)
-  - Use amix with dropout_transition=2 for smooth blending
+- [ ] **Check for speech bleeding in video ambient audio**
+- [ ] **Mix each scene individually** with cinematic audio levels:
+  - Standard scenes: Veo3 ambient (0.25x) + Narration (1.3x) + amix dropout_transition=3
+  - Speech bleeding scenes: Narration-only (1.3x) with zero ambient audio
 - [ ] **Verify each mixed scene** has both video and audio working
+- [ ] **Test for audio bleeding** between consecutive scenes
 - [ ] **Check for any missing or failed scenes**
 
 ### **Phase 7: Final Compilation**
@@ -64,9 +68,56 @@ This guide creates 3-minute documentaries with perfect synchronization, visual c
 - [ ] **Compile final documentary** using FFmpeg concat
 - [ ] **Verify final video specs**:
   - Duration: ~3 minutes (23 scenes × 8s)
-  - Resolution: 1280x720 (16:9 aspect ratio)
-  - Audio: Clear narration with subtle ambient background
+  - Resolution: 1080p (1920×1080) for desktop or 720p (1280×720)
+  - Aspect ratio: 16:9 (desktop) or 9:16 (mobile/shorts)
+  - Audio: Cinematic mix (0.25x ambient, 1.3x narration)
 - [ ] **Test final video** for synchronization and quality
+
+### **Phase 8: Multi-Format Production (Optional)**
+- [ ] **Mobile Version (9:16)**:
+  - Re-generate videos with vertical framing prompts
+  - Reuse existing audio from desktop version
+  - Optimize for TikTok/Instagram Reels/YouTube Shorts
+- [ ] **YouTube Shorts (60s clips)**:
+  - Extract compelling 60-second segments
+  - Create multiple cuts for A/B testing
+  - Simple extraction (no complex concatenation)
+
+---
+
+## 🚨 **CRITICAL SYNCHRONIZATION TROUBLESHOOTING**
+
+### **Problem: Audio Bleeding Between Scenes**
+**Symptoms:** Next scene's narration starts before previous scene ends
+**Root Cause:** Narrations shorter than 8 seconds leave dead air gaps
+**Solution:** 
+```bash
+# Pad ALL narrations to exactly 8.000 seconds
+for scene in {1..24}; do
+    duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "audio/scene${scene}.mp3")
+    if (( $(echo "$duration < 8.0" | bc -l) )); then
+        ffmpeg -y -i "audio/scene${scene}.mp3" -filter_complex "[0:a]apad=pad_dur=8.0[padded]" -map "[padded]" -t 8.0 "audio/scene${scene}_padded.mp3"
+        mv "audio/scene${scene}_padded.mp3" "audio/scene${scene}.mp3"
+    fi
+done
+```
+
+### **Problem: Speech in Video Ambient Audio**  
+**Symptoms:** Unwanted dialogue bleeding through despite "no speech, ambient only"
+**Solution Options:**
+1. **Regenerate with different seed:** Add +1000 to original seed
+2. **Drop ambient audio completely:** Use narration-only mixing
+```bash
+# Narration-only approach (recommended for persistent speech)
+ffmpeg -y -i "videos/scene${N}.mp4" -i "audio/scene${N}.mp3" \
+    -filter_complex "[1:a]volume=1.3[narration]" \
+    -map 0:v -map "[narration]" -c:v copy -c:a aac \
+    "final/scene${N}_mixed.mp4"
+```
+
+### **Problem: Timing Still Off After Regeneration**
+**Root Cause:** Using 6-8 second range is too loose
+**Solution:** Tighten to 6.0-7.8 seconds for better sync boundaries
 
 ---
 
@@ -113,8 +164,8 @@ documentary_project/
 
 ### **Technical Quality**
 - **Perfect synchronization** - no audio cutoffs or hangs
-- **Clean audio mixing** - narration prominent, ambient subtle
-- **Smooth transitions** - seamless scene-to-scene flow
+- **Cinematic audio mixing** - balanced narration (1.3x) with ambient presence (0.25x)
+- **Smooth transitions** - seamless scene-to-scene flow with 3s crossfades
 - **Professional output** - broadcast-ready quality
 
 ---
@@ -145,7 +196,9 @@ documentary_project/
 
 ### **Production Metrics**
 - **Scene success rate**: Target 100% (all scenes generate successfully)
-- **Timing accuracy**: 90%+ scenes within 6-8 second target
+- **Timing accuracy**: 95%+ scenes within 6.0-7.8 second target (tighter sync)
+- **Audio synchronization**: 100% scenes padded to exactly 8.000s (zero bleeding)
+- **Speech detection**: Zero tolerance for ambient dialogue bleeding
 - **Visual consistency**: Same characters/environment throughout
 - **Audio quality**: Clear narration with proper mixing
 
@@ -162,11 +215,29 @@ documentary_project/
 **Completed Documentaries:**
 1. **Black Holes Documentary**: 94MB, 3:04, perfect sync, cosmic physics
 2. **Dinosaur Family**: 215MB, 3:04, visual continuity, family drama
+3. **Eye Evolution - The Jewel of Evolution**: 194MB, 3:12, seed drift technique
+   - Desktop version (16:9): 1080p educational documentary
+   - Mobile version (9:16): Optimized for social media
+   - 5 YouTube Shorts: 60-second viral-ready clips
+4. **The Secret Architecture of Seeds**: 192MB, 3:12, perfect synchronization
+   - Pioneered narration padding technique (8.000s boundaries)
+   - Solved speech bleeding with narration-only mixing
+   - Demonstrated tighter timing thresholds (6.0-7.8s)
+
+**Technical Innovations:**
+- **Seed Drift Technique**: Progressive seeds (50000→50023) for evolutionary narratives
+- **Multi-Format Production**: Single content adapted for desktop, mobile, and shorts
+- **Cinematic Audio Standard**: Balanced mix (0.25x ambient, 1.3x narration) for immersive experience
+- **Simplified Shorts Creation**: Direct extraction avoiding complex concatenation issues
+- **Narration Padding Algorithm**: All scenes padded to 8.000s preventing audio bleeding
+- **Speech Bleeding Detection**: Narration-only mixing for problematic ambient audio
+- **Precision Timing Control**: 6.0-7.8s targeting for perfect synchronization
 
 **Technical Achievement:**
-- **100% scene success rates** across both documentaries
+- **100% scene success rates** across all documentaries
 - **Perfect timing synchronization** through script-first methodology
-- **Netflix-quality visual storytelling** with character continuity
+- **Netflix-quality visual storytelling** with character continuity or evolution
 - **Professional narration** with proper educational pacing
+- **Cinematic audio standard** for immersive viewer experience
 
-**Your Educational YouTube Network is ready for unlimited high-quality content production!** 🌟
+**Your Educational YouTube Network is ready for unlimited high-quality content production across all platforms!** 🌟
