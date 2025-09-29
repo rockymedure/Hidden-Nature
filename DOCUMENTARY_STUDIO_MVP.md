@@ -125,6 +125,23 @@ I'm thinking:
 Sound good? I'll generate 24 scenes targeting 6-8 seconds each."
 ```
 
+**Character Story Type Detection:**
+```
+USER: "Tell an inspiring story of how an acorn becomes an oak"
+
+AI: "I detect this is a TRANSFORMATION story! I'll use progressive character 
+development instead of static consistency.
+
+🎭 APPROACH:
+- Scenes 1-6: Show ONLY the acorn (no tree)
+- Scenes 7-8: Germination moment (shell cracking)
+- Scenes 9-12: Young sapling only
+- Scenes 19-24: Ancient oak only
+
+This ensures each life stage gets proper focus instead of showing 
+the full transformation in every scene."
+```
+
 **Production Monitoring:**
 ```
 AI: "Your documentary is 60% complete! 

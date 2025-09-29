@@ -63,6 +63,7 @@ The AI assistant acts as your **virtual documentary production partner**, provid
 - **Quality Optimization**: "Scene 12 is 9.2 seconds - should I shorten the text or regenerate?" → AI provides contextual guidance
 - **Voice Selection Guidance**: AI recommends optimal narrator based on genre, audience, and content complexity
 - **Synchronization Analysis**: AI automatically detects audio bleeding and suggests specific fixes
+- **Character Story Intelligence**: AI distinguishes between static character consistency vs progressive transformation stories
 
 #### **📚 Educational Content Expertise**
 - **Scientific Accuracy**: AI fact-checks content and suggests improvements for educational value
