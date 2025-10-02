@@ -60,9 +60,9 @@ RESPONSE=$(curl -s -X POST "https://queue.fal.run/fal-ai/elevenlabs/text-to-dial
   -H "Content-Type: application/json" \
   -d "$DIALOGUE_JSON")
 
-REQUEST_ID=$(echo "$RESPONSE" | grep -o '"request_id":"[^"]*"' | cut -d'"' -f4)
+REQUEST_ID=$(echo "$RESPONSE" | jq -r '.request_id' 2>/dev/null)
 
-if [ -z "$REQUEST_ID" ]; then
+if [ -z "$REQUEST_ID" ] || [ "$REQUEST_ID" = "null" ]; then
   echo "❌ Error: No request ID returned"
   echo "$RESPONSE" | jq '.' 2>/dev/null || echo "$RESPONSE"
   exit 1
@@ -80,10 +80,10 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
   sleep 3
   ATTEMPT=$((ATTEMPT + 1))
   
-  STATUS_RESPONSE=$(curl -s "https://queue.fal.run/fal-ai/elevenlabs/text-to-dialogue/eleven-v3/requests/${REQUEST_ID}/status" \
+  STATUS_RESPONSE=$(curl -s "https://queue.fal.run/fal-ai/elevenlabs/requests/${REQUEST_ID}/status" \
     -H "Authorization: Key ${FAL_KEY}")
   
-  STATUS=$(echo "$STATUS_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+  STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status' 2>/dev/null)
   
   if [ "$STATUS" = "COMPLETED" ]; then
     echo "✅ Generation complete!"
