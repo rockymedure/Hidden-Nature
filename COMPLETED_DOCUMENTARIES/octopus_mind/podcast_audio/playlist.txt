@@ -1,0 +1,6 @@
+file 'segment1_intro.mp3'
+file 'segment2_first_contact.mp3'
+file 'segment3_the_search.mp3'
+file 'segment4_engineering.mp3'
+file 'segment5_the_moment.mp3'
+file 'segment6_closing.mp3'

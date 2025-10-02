@@ -148,6 +148,135 @@ wait  # Wait for ALL narrations to complete before proceeding
 
 ---
 
+### **PHASE 3B: Voice Discovery with ElevenLabs MCP**
+*Use Model Context Protocol integration for efficient voice exploration*
+
+#### **Human Process:**
+Before generating narrations, use the ElevenLabs MCP server to explore available voices, test voice characteristics, and make informed narrator selections. This streamlines voice discovery and ensures optimal voice matching for your documentary genre.
+
+#### **MCP Setup:**
+```json
+// Add to ~/.cursor/mcp.json or ~/Library/Application Support/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "elevenlabs": {
+      "command": "/Users/YOUR_USERNAME/.local/bin/uvx",
+      "args": ["elevenlabs-mcp"],
+      "env": {
+        "ELEVENLABS_API_KEY": "your_elevenlabs_api_key_here"
+      }
+    }
+  }
+}
+```
+
+#### **Voice Discovery Workflow:**
+```bash
+# 1. Search for voices by category or characteristics
+# Through MCP: "Search for female narrator voices"
+# Through MCP: "Find voices suitable for nature documentaries"
+
+# 2. Generate test samples
+# Through MCP: "Generate test sample with voice Jessica saying: [test narration]"
+
+# 3. Compare voice characteristics
+# Listen to multiple samples side-by-side
+# Evaluate emotional range, clarity, pacing
+
+# 4. Document chosen voice
+NARRATOR_NAME="Jessica"  # or "Brooklyn", "Oracle X", etc.
+NARRATOR_ID="cgSgspJ2msm6clMCkdW9"  # Retrieved from MCP
+```
+
+#### **Available MCP Tools:**
+- `search_voices` - Find voices by name, description, or characteristics
+- `get_voice` - Get detailed information about a specific voice
+- `text_to_speech` - Generate test audio samples
+- `search_voice_library` - Explore the broader ElevenLabs voice library
+- `list_models` - View available TTS models
+
+#### **Quality Checklist:**
+- [ ] ElevenLabs MCP server configured and connected
+- [ ] Voice search conducted for documentary genre
+- [ ] Test samples generated for top 3-5 voice candidates
+- [ ] Final narrator voice selected and documented (name + ID)
+- [ ] Voice characteristics match documentary tone and style
+
+---
+
+### **PHASE 3C: Expressive Audio with Eleven v3 Tags**
+*Enhance narrations and podcasts with emotional audio tags*
+
+#### **Human Process:**
+Eleven v3 introduces emotional control through audio tags, allowing narrations to include natural expressions like laughter, sighs, whispers, and specific emotional tones. This is especially powerful for podcast content and character-based documentaries.
+
+#### **Core Audio Tags:**
+
+**Emotional Directions:**
+- `[happy]`, `[sad]`, `[excited]`, `[angry]`
+- `[curious]`, `[thoughtful]`, `[surprised]`, `[concerned]`
+- `[warm]`, `[serious]`, `[enthusiastic]`, `[reflective]`
+
+**Non-verbal Sounds:**
+- `[laughs]`, `[chuckles]`, `[giggles]`
+- `[sighs]`, `[exhales]`, `[inhales deeply]`
+- `[clears throat]`, `[pause]`
+
+**Special Effects:**
+- `[whispers]`, `[shouts]`
+- `[sarcastic]`, `[mischievously]`
+- `[singing]`, `[strong X accent]`
+
+#### **Usage Guidelines:**
+
+1. **Match Tags to Voice Character**
+   - Serious voices: Use `[thoughtful]`, `[seriously]`, `[pause]`
+   - Expressive voices: Use `[excited]`, `[laughs]`, `[amazed]`
+   - Professional voices: Use `[warm]`, `[curious]`, `[reflective]`
+
+2. **Strategic Placement**
+   ```text
+   [excited] That's what I saw!
+   Thanks for having me, Jeff. [chuckles]
+   It's beautiful and horrifying... [pause] at the same time.
+   ```
+
+3. **Combine with Emphasis**
+   ```text
+   [amazed] 27,000 teeth, arranged in ROWS!
+   [frustrated] They'd just... vanish.
+   ```
+
+4. **Voice Settings for Tags**
+   ```json
+   {
+     "stability": 0.4,        // Creative (0.3-0.5) for expressiveness
+     "similarity_boost": 0.75,
+     "style": 0.5,           // Natural emotional range
+     "model_id": "eleven_turbo_v2_5"  // v3-compatible model
+   }
+   ```
+
+#### **For Podcast Dialogue:**
+```text
+**HOST:** [warm] Welcome back to Hidden Nature. [curious] Anju, welcome.
+
+**GUEST:** [chuckles] Thanks for having me, Jeff. [sighs] I'm STILL finding forest dirt in my gear.
+
+**HOST:** [amused] So... mushroom apartments. That's not exactly standard scientific terminology.
+
+**GUEST:** [laughs] No, it's not. But the first time I crouched down with my magnifying glass... [excited] that's what I saw!
+```
+
+#### **Quality Checklist:**
+- [ ] Audio tags used strategically (not overused)
+- [ ] Tags match voice character and emotional range
+- [ ] Stability set to Creative (0.3-0.5) for tag responsiveness
+- [ ] Test samples generated to verify tag effectiveness
+- [ ] Tags enhance engagement without altering meaning
+
+---
+
 ### **PHASE 4: Timing Analysis & Perfect Synchronization**
 *Measure narration durations and ensure perfect 8-second boundaries*
 
@@ -250,10 +379,92 @@ ENVIRONMENTAL_CONTEXT="Clean scientific presentation, laboratory-quality macro s
 ### **PHASE 6: Video Generation with Dynamics**
 *Generate all videos in parallel using consistent visual approach*
 
+#### **CRITICAL: Explorer Character Consistency System**
+
+**For documentaries featuring on-camera explorers (Charlotte, Anju, etc.):**
+
+When an explorer appears on camera in multiple scenes, **ALWAYS use image-to-video for ALL their appearances** to maintain perfect character consistency.
+
+**Process:**
+1. **Scene 1 (Explorer Intro)**: Use provided explorer photo with image-to-video
+2. **Extract reference frame**: After Scene 1 generates, extract a frame showing the explorer
+3. **Subsequent appearances**: Use that reference frame for all other scenes featuring the explorer
+
+**API Endpoints:**
+- **Image-to-Video**: `https://fal.run/fal-ai/veo3/fast/image-to-video`
+- **Text-to-Video**: `https://fal.run/fal-ai/veo3/fast`
+
+**Example: Anju in "The Mushroom Apartments"**
+```bash
+IMAGE_TO_VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast/image-to-video"
+EXPLORER_IMAGE="anju_photo.jpeg"
+
+# Define consistent explorer description (DO NOT use name in prompts)
+EXPLORER_DESC="Young South Asian female scientist with long dark hair, warm smile, field jacket"
+
+# Scene 1: Explorer intro (use original photo)
+response=$(curl -s -X POST "$IMAGE_TO_VIDEO_ENDPOINT" \
+    -H "Authorization: Key $FAL_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{
+        \"prompt\": \"$EXPLORER_DESC introducing herself with warm smile in misty forest, looks at camera with friendly curiosity, natural breathing, no speech, ambient forest sounds only\",
+        \"image_url\": \"$explorer_url\",
+        \"aspect_ratio\": \"16:9\",
+        \"duration\": \"8s\",
+        \"generate_audio\": true,
+        \"resolution\": \"1080p\"
+    }")
+
+# After Scene 1 completes: Extract reference frame
+ffmpeg -y -i "videos/scene1.mp4" -ss 4 -frames:v 1 "explorer_reference.jpg"
+
+# Upload reference for subsequent scenes
+upload_response=$(curl -s -X POST "https://fal.run/fal-ai/files/upload" \
+    -H "Authorization: Key $FAL_API_KEY" \
+    -F "file=@explorer_reference.jpg")
+explorer_ref_url=$(echo "$upload_response" | jq -r '.url')
+
+# Scene 16: Explorer examining specimen (use reference)
+response=$(curl -s -X POST "$IMAGE_TO_VIDEO_ENDPOINT" \
+    -H "Authorization: Key $FAL_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{
+        \"prompt\": \"$EXPLORER_DESC examining specimen with magnifier, showing wonder and concentration, documentary moment, no speech, ambient only\",
+        \"image_url\": \"$explorer_ref_url\",
+        \"aspect_ratio\": \"16:9\",
+        \"duration\": \"8s\",
+        \"generate_audio\": true,
+        \"resolution\": \"1080p\"
+    }")
+
+# Scene 26: Explorer closing shot (use reference)
+response=$(curl -s -X POST "$IMAGE_TO_VIDEO_ENDPOINT" \
+    -H "Authorization: Key $FAL_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{
+        \"prompt\": \"$EXPLORER_DESC standing contemplatively at twilight, wide shot in natural environment, reflective mood, no speech, ambient only\",
+        \"image_url\": \"$explorer_ref_url\",
+        \"aspect_ratio\": \"16:9\",
+        \"duration\": \"8s\",
+        \"generate_audio\": true,
+        \"resolution\": \"1080p\"
+    }")
+```
+
+**Rules:**
+- ✅ **DO** use image-to-video for ALL scenes where explorer appears
+- ✅ **DO** extract and reuse reference frames for consistency
+- ✅ **DO** use consistent physical description (NOT name) in all prompts
+- ✅ **DO** maintain same lighting/environment context
+- ❌ **DON'T** use explorer's name in video prompts (AI doesn't know who they are)
+- ❌ **DON'T** use text-to-video for ANY explorer appearances
+- ❌ **DON'T** mix text-to-video and image-to-video for same character
+
 #### **Technical Implementation:**
 ```bash
 # Generate ALL videos in PARALLEL for maximum speed
 VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast"
+IMAGE_TO_VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast/image-to-video"
 
 # Visual descriptions array (corresponding to narrations)
 declare -a visuals=(
@@ -262,10 +473,58 @@ declare -a visuals=(
     # ... continue for all 24 scenes
 )
 
+# Track which scenes feature the explorer on camera
+declare -a explorer_scenes=(1 16 26)  # Example: scenes where Anju appears
+
 for i in {0..23}; do
     scene=$((i + 1))
     seed=$((base_seed + i))  # Use seed drift or consistent seed strategy
     visual="${visuals[$i]}"
+    
+    # Check if this is an explorer scene (requires image-to-video)
+    is_explorer_scene=false
+    for explorer_scene in "${explorer_scenes[@]}"; do
+        if [[ $scene -eq $explorer_scene ]]; then
+            is_explorer_scene=true
+            break
+        fi
+    done
+    
+    if [[ "$is_explorer_scene" == true ]]; then
+        # EXPLORER SCENE: Use image-to-video for character consistency
+        echo "🎥 Scene $scene: Generating with IMAGE-TO-VIDEO (Explorer)"
+        
+        # Determine which explorer image to use
+        if [[ $scene -eq 1 ]]; then
+            # Scene 1: Use original explorer photo
+            explorer_url="$EXPLORER_IMAGE_URL"
+        else
+            # Subsequent scenes: Use extracted reference frame
+            explorer_url="$EXPLORER_REFERENCE_URL"
+        fi
+        
+        (
+            response=$(curl -s -X POST "$IMAGE_TO_VIDEO_ENDPOINT" \
+                -H "Authorization: Key $FAL_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d "{
+                    \"prompt\": \"$visual, no speech, ambient only\",
+                    \"image_url\": \"$explorer_url\",
+                    \"aspect_ratio\": \"16:9\",
+                    \"duration\": \"8s\",
+                    \"generate_audio\": true,
+                    \"resolution\": \"1080p\"
+                }")
+            
+            video_url=$(echo "$response" | jq -r '.video.url')
+            if [[ -n "$video_url" && "$video_url" != "null" ]]; then
+                curl -s -o "videos/scene${scene}.mp4" "$video_url"
+                echo "✅ Scene $scene: Explorer video saved"
+            fi
+        ) &
+    else
+        # STANDARD SCENE: Use text-to-video
+        echo "🎥 Scene $scene: Generating video (seed $seed)"
     
     # Build prompt with consistency strategy
     if [[ "$documentary_type" == "character_story" ]]; then
@@ -277,8 +536,6 @@ for i in {0..23}; do
         # Concept-focused approach
         full_prompt="$visual, $DOCUMENTARY_STYLE, $CAMERA_APPROACH, $LIGHTING, $COLOR_PALETTE, $ENVIRONMENTAL_CONTEXT, mechanical detail, time-lapse and slow-motion, nature's engineering, no speech, ambient only"
     fi
-    
-    echo "🎥 Scene $scene: Generating video (seed $seed)"
     
     (
         response=$(curl -s -X POST "$VIDEO_ENDPOINT" \
@@ -292,6 +549,7 @@ for i in {0..23}; do
             echo "✅ Scene $scene: Video saved"
         fi
     ) &
+    fi
     
     sleep 2  # Stagger API calls to avoid rate limits
 done
@@ -303,52 +561,167 @@ wait  # Wait for ALL videos to complete before mixing
 - [ ] Visual consistency strategy applied to every scene
 - [ ] Seed strategy implemented (consistent vs drift)
 - [ ] "No speech, ambient only" included in all prompts
+- [ ] **Explorer scenes use image-to-video (if applicable)**
+- [ ] **Scene 1 explorer photo uploaded and used**
+- [ ] **Reference frame extracted from Scene 1 for subsequent explorer scenes**
+- [ ] **All explorer appearances maintain character consistency**
 - [ ] All video files downloaded successfully
 
 ---
 
-### **PHASE 7: Professional Audio Mixing with Speech Detection**
-*Mix audio and video with cinematic levels plus speech bleeding protection*
+### **PHASE 7: Scene-Specific Music Generation**
+*Generate unique 8-second music clips for each scene to enhance emotional impact*
 
 #### **Human Process:**
-This phase combines the perfectly-timed narrations with videos while detecting and handling any speech bleeding from video ambient audio. Some scenes may require narration-only mixing to eliminate unwanted dialogue.
+Create scene-specific music that expresses the unique mood, emotion, and content of each scene. This replaces the continuous score approach with more targeted, expressive musical moments that enhance the storytelling.
 
 #### **Technical Implementation:**
 ```bash
-# Mix each scene with PROVEN cinematic audio levels + speech bleeding protection
-for scene in {1..24}; do
-    if [[ -f "videos/scene${scene}.mp4" && -f "audio/scene${scene}.mp3" ]]; then
-        echo "🔊 Mixing scene $scene"
+# Define music prompts for each scene based on content and mood
+MUSIC_ENDPOINT="https://fal.run/fal-ai/stable-audio-25/text-to-audio"
+mkdir -p music
+
+# Example scene-specific music prompts array
+declare -a music_prompts=(
+    "Warm acoustic guitar melody with gentle forest ambience, intimate, curious, welcoming, 8 seconds"
+    "Time-lapse music, subtle swelling strings, ethereal, sense of rapid growth, macro nature, 8 seconds"
+    "Delicate, shimmering piano arpeggios, pristine, pure, gentle morning light, macro, 8 seconds"
+    # ... continue for all 24-26 scenes with unique prompts
+)
+
+# Generate all music clips in parallel (10 at a time to avoid rate limits)
+for i in "${!music_prompts[@]}"; do
+    scene=$((i + 1))
+    prompt="${music_prompts[$i]}"
+    
+    (
+        echo "🎵 Scene $scene: Generating music..."
+        response=$(curl -s -X POST "$MUSIC_ENDPOINT" \
+            -H "Authorization: Key $FAL_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+                \"prompt\": \"$prompt\",
+                \"seconds_total\": 8,
+                \"num_inference_steps\": 8,
+                \"guidance_scale\": 7
+            }")
         
-        # Check if this scene has known speech bleeding (manual identification)
-        if [[ " 8 21 " =~ " $scene " ]]; then
-            # SPEECH BLEEDING FIX: Narration-only (drop ambient audio)
-            ffmpeg -y -i "videos/scene${scene}.mp4" -i "audio/scene${scene}.mp3" \
-                -filter_complex "[1:a]volume=1.3[narration]" \
-                -map 0:v -map "[narration]" -c:v copy -c:a aac \
-                "final/scene${scene}_mixed.mp4" 2>/dev/null
+        audio_url=$(echo "$response" | jq -r '.audio.url')
+        
+        if [[ -n "$audio_url" && "$audio_url" != "null" ]]; then
+            curl -s -o "music/scene${scene}_music.wav" "$audio_url"
+            echo "✅ Scene $scene: Music generated"
         else
-            # STANDARD MIX: Ambient + narration (both padded to 8.000s)
-            ffmpeg -y -i "videos/scene${scene}.mp4" -i "audio/scene${scene}.mp3" \
-                -filter_complex "[0:a]volume=0.25[ambient];[1:a]volume=1.3[narration];[ambient][narration]amix=inputs=2:duration=first:dropout_transition=3[audio]" \
-                -map 0:v -map "[audio]" \
-                -c:v copy -c:a aac \
-                "final/scene${scene}_mixed.mp4" 2>/dev/null
+            echo "❌ Scene $scene: Music generation failed"
         fi
+    ) &
+    
+    # Limit concurrent jobs to 10
+    if (( (i + 1) % 10 == 0 )); then
+        wait
+    fi
+done
+
+wait  # Wait for all music generation to complete
+```
+
+#### **Music Prompt Guidelines:**
+- **8 seconds duration**: Matches scene length perfectly
+- **Scene-specific mood**: Each prompt captures the unique emotion/content of that scene
+- **Instrumentation variety**: Mix acoustic, orchestral, and synth elements
+- **Thematic coherence**: While unique, maintain overall documentary atmosphere
+- **Descriptive keywords**: Include mood, tempo, instrumentation, and atmosphere
+
+#### **Quality Checklist:**
+- [ ] Music prompt created for each scene expressing its unique content
+- [ ] All music clips generated successfully (8 seconds each)
+- [ ] Music files saved in dedicated music directory
+- [ ] Thematic coherence maintained across all music clips
+- [ ] No missing or failed music generations
+
+---
+
+### **PHASE 8: Three-Layer Professional Audio Mixing**
+*Mix video ambient, narration, and scene music with cinematic levels*
+
+#### **Human Process:**
+This phase combines three audio layers: video ambient audio (0.25x), narration (1.3x), and scene-specific music (0.15x). Critical requirement: ALL mixed scenes must have identical audio properties (44.1kHz mono AAC) to prevent audio dropouts during final concatenation.
+
+#### **Technical Implementation:**
+```bash
+# CRITICAL: Three-layer mixing with CONSISTENT audio properties
+# All scenes MUST output as: AAC codec, 44.1kHz sample rate, mono (1 channel)
+
+for scene in {1..24}; do
+    VIDEO_FILE="videos/scene${scene}.mp4"
+    NARRATION_FILE="audio/scene${scene}.mp3"
+    MUSIC_FILE="music/scene${scene}_music.wav"
+    MIXED_OUTPUT="final/scene${scene}_mixed.mp4"
+    
+    if [[ -f "$VIDEO_FILE" && -f "$NARRATION_FILE" && -f "$MUSIC_FILE" ]]; then
+        echo "🔊 Mixing scene $scene (video + narration + music)..."
+        
+        # THREE-LAYER MIX with explicit audio consistency settings
+        ffmpeg -y -i "$VIDEO_FILE" \
+                  -i "$NARRATION_FILE" \
+                  -i "$MUSIC_FILE" \
+            -filter_complex "[0:a]volume=0.175[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.20[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
+            -map 0:v -map "[audio]" \
+            -c:v copy -c:a aac -ac 1 -ar 44100 \
+            "$MIXED_OUTPUT" 2>/dev/null
+        
+        echo "✅ Scene $scene mixed"
+    else
+        echo "❌ Scene $scene: Missing components"
+    fi
+done
+```
+
+#### **Audio Mixing Levels:**
+- **Video Ambient**: `0.25x` (subtle environmental sound)
+- **Narration**: `1.3x` (clear, prominent voiceover)
+- **Scene Music**: `0.15x` (supportive, not overwhelming)
+- **Dropout Transition**: `0` (prevents audio gaps during mixing)
+
+#### **CRITICAL Audio Consistency Requirements:**
+```bash
+# MANDATORY: All mixed scenes MUST have identical audio properties
+# - Codec: AAC (LC)
+# - Sample Rate: 44100 Hz
+# - Channels: Mono (1 channel)
+
+# Verify audio consistency across all mixed scenes
+for scene in {1..24}; do
+    props=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels \
+        -of default=noprint_wrappers=1:nokey=1 "final/scene${scene}_mixed.mp4" | tr '\n' ' ')
+    
+    if [[ "$props" != "aac 44100 1 " ]]; then
+        echo "❌ Scene $scene: Audio mismatch - $props (expected: aac 44100 1)"
+        echo "   REGENERATING with correct settings..."
+        
+        # Regenerate with explicit audio settings
+        ffmpeg -y -i "videos/scene${scene}.mp4" \
+                  -i "audio/scene${scene}.mp3" \
+                  -i "music/scene${scene}_music.wav" \
+            -filter_complex "[0:a]volume=0.175[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.20[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
+                -map 0:v -map "[audio]" \
+            -c:v copy -c:a aac -ac 1 -ar 44100 \
+                "final/scene${scene}_mixed.mp4" 2>/dev/null
     fi
 done
 ```
 
 #### **Quality Checklist:**
-- [ ] All scenes checked for speech bleeding in ambient audio
-- [ ] Cinematic audio levels applied (0.25x ambient, 1.3x narration)
-- [ ] Speech bleeding scenes handled with narration-only mixing
-- [ ] Each mixed scene verified for both video and audio
+- [ ] All three audio layers (ambient, narration, music) present for each scene
+- [ ] Cinematic audio levels applied (0.175x ambient, 1.3x narration, 0.20x music)
+- [ ] ALL mixed scenes have identical audio properties (aac 44100 1)
+- [ ] Audio consistency verified to prevent concatenation dropouts
+- [ ] Each mixed scene verified for video + complete audio
 - [ ] No missing or failed mixed scenes
 
 ---
 
-### **PHASE 8: Final Documentary Assembly**
+### **PHASE 9: Final Documentary Assembly**
 *Compile all mixed scenes into broadcast-ready documentary*
 
 #### **Technical Implementation:**
@@ -361,7 +734,8 @@ for scene in {1..24}; do
     fi
 done
 
-# Compile final documentary
+# Compile final documentary with stream copy (NO re-encoding)
+# This preserves the consistent audio properties from mixing phase
 ffmpeg -y -f concat -safe 0 -i scene_list.txt -c copy "FINAL_DOCUMENTARY_1080P.mp4"
 
 # Verify final output
@@ -369,16 +743,295 @@ if [[ -f "FINAL_DOCUMENTARY_1080P.mp4" ]]; then
     duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "FINAL_DOCUMENTARY_1080P.mp4" | cut -d. -f1)
     filesize=$(ls -lh "FINAL_DOCUMENTARY_1080P.mp4" | awk '{print $5}')
     echo "✨ Documentary Complete: $((duration / 60))m $((duration % 60))s, $filesize"
+    
+    # Verify audio consistency in final output
+    final_audio=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels \
+        -of default=noprint_wrappers=1:nokey=1 "FINAL_DOCUMENTARY_1080P.mp4" | tr '\n' ' ')
+    echo "Final audio properties: $final_audio"
 fi
 ```
 
-#### **Optional: Multi-Format Production**
-- **Mobile Version (9:16)**: Re-generate videos with vertical framing prompts
-- **YouTube Shorts (60s clips)**: Extract compelling segments for social media
+#### **Quality Checklist:**
+- [ ] All mixed scenes included in compilation
+- [ ] Final documentary compiles without errors
+- [ ] Duration matches expected length (scenes × 8 seconds)
+- [ ] Audio properties consistent throughout (no dropouts)
+- [ ] Final file playable and verified
 
 ---
 
-### **PHASE 9: YouTube Publishing Package Generation**
+### **PHASE 10: Multi-Platform Post-Production**
+*Create mobile version, Substack field journal, and podcast content*
+
+#### **Human Process:**
+After completing the desktop documentary, create platform-specific versions and companion content to maximize reach and engagement across YouTube, Instagram/TikTok, Substack, and podcast platforms.
+
+#### **A. Mobile Version (9:16 Portrait)**
+
+**CRITICAL: Regenerate all videos in 9:16 format - DO NOT crop!**
+
+```bash
+# Regenerate ALL 26 videos with aspect_ratio: "9:16"
+VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast"
+IMAGE_TO_VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast/image-to-video"
+
+mkdir -p videos_mobile
+mkdir -p final_mobile
+
+# Keep prompts clean - aspect ratio is handled by parameters
+declare -a mobile_prompts=(
+    "Scene 1 visual description... no speech, ambient only"
+    "Scene 2 visual description... no speech, ambient only"
+    # ... continue for all scenes
+)
+
+# Generate all mobile videos (use same image-to-video logic for explorer scenes)
+for i in {0..23}; do
+    scene=$((i + 1))
+    
+    # Check if explorer scene
+    if [[ " 1 16 24 " =~ " $scene " ]]; then
+        # Image-to-video for explorer consistency
+        response=$(curl -s -X POST "$IMAGE_TO_VIDEO_ENDPOINT" \
+            -H "Authorization: Key $FAL_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+                \"prompt\": \"${mobile_prompts[$i]}\",
+                \"image_url\": \"$EXPLORER_IMAGE_URL\",
+                \"aspect_ratio\": \"9:16\",
+                \"duration\": \"8s\",
+                \"generate_audio\": true,
+                \"resolution\": \"1080p\"
+            }")
+    else
+        # Standard text-to-video
+        response=$(curl -s -X POST "$VIDEO_ENDPOINT" \
+            -H "Authorization: Key $FAL_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+                \"prompt\": \"${mobile_prompts[$i]}\",
+                \"aspect_ratio\": \"9:16\",
+                \"duration\": \"8s\",
+                \"generate_audio\": true,
+                \"resolution\": \"1080p\"
+            }")
+    fi
+    
+    video_url=$(echo "$response" | jq -r '.video.url')
+    curl -s -o "videos_mobile/scene${scene}.mp4" "$video_url"
+done
+
+# Mix mobile videos with SAME narration and music
+for scene in {1..24}; do
+    ffmpeg -y -i "videos_mobile/scene${scene}.mp4" \
+              -i "audio/scene${scene}.mp3" \
+              -i "music/scene${scene}_music.wav" \
+        -filter_complex "[0:a]volume=0.25[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.15[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
+        -map 0:v -map "[audio]" \
+        -c:v copy -c:a aac -ac 1 -ar 44100 \
+        "final_mobile/scene${scene}_mixed.mp4" 2>/dev/null
+done
+
+# Compile mobile documentary
+> mobile_scene_list.txt
+for scene in {1..24}; do
+    echo "file 'final_mobile/scene${scene}_mixed.mp4'" >> mobile_scene_list.txt
+done
+ffmpeg -y -f concat -safe 0 -i mobile_scene_list.txt -c copy "FINAL_DOCUMENTARY_MOBILE_9x16.mp4"
+```
+
+#### **B. Substack Field Journal Article**
+
+**For Explorer-Led Documentaries:**
+
+Create a first-person field journal article from the explorer's perspective, documenting their journey and discoveries.
+
+```markdown
+# Field Notes: [Documentary Title]
+## [Subtitle from Explorer's Perspective]
+
+*By [Explorer Name], [Their Role]*
+
+---
+
+[Opening paragraph introducing the expedition and explorer's motivation]
+
+---
+
+## Day 1: [First Discovery Phase]
+
+**[Date/Time]**
+
+[Detailed first-person account of early observations, written as journal entry]
+
+[Continue with Day 2, Day 3, etc., following documentary narrative arc]
+
+---
+
+## Final Thoughts: [Reflective Closing]
+
+[Explorer's personal reflection on the experience and discoveries]
+
+---
+
+## About This Research
+
+[Technical details about field study, methods, locations]
+
+*For more explorations, follow [Explorer Name]'s research at Hidden Nature Expeditions.*
+
+---
+
+**Watch the full documentary:** [[Documentary Title] - [Duration]]
+
+---
+
+*Field Notes © 2025 Hidden Nature Productions*
+```
+
+**Article Guidelines:**
+- **Length**: 2,500-3,000 words
+- **Structure**: Day-by-day or discovery-by-discovery progression
+- **Tone**: Personal but scientific, first-person narrative
+- **Images**: Extract 8-10 frames from documentary for illustration
+- **Embedded Video**: Include 30-60 second teaser
+- **Call-to-Action**: Link to full documentary and subscription
+
+#### **C. Companion Podcast Script**
+
+**Format:** Conversational interview between host (Mark) and explorer (guest)
+
+```markdown
+# Hidden Nature Podcast - Episode [N]: [Documentary Title]
+
+**Host:** Mark (Hidden Nature)  
+**Guest:** [Explorer Name]  
+**Duration:** 15-20 minutes  
+**Topic:** [Documentary Subject]
+
+---
+
+## OPENING (1-2 minutes)
+
+**MARK:**  
+[Welcoming introduction, episode topic, guest introduction]
+
+**[EXPLORER]:**  
+[Warm greeting, brief personal context]
+
+---
+
+## ACT 1: THE EXPEDITION (5-7 minutes)
+
+**MARK:**  
+[Question about what sparked the expedition]
+
+**[EXPLORER]:**  
+[Personal story, motivation, initial observations]
+
+[Continue natural conversational flow covering documentary key moments]
+
+---
+
+## ACT 2: THE DISCOVERIES (5-7 minutes)
+
+**MARK:**  
+[Questions diving deeper into specific findings]
+
+**[EXPLORER]:**  
+[Detailed explanations, surprising moments, scientific context]
+
+---
+
+## ACT 3: THE TAKEAWAY (3-4 minutes)
+
+**MARK:**  
+[Broader implications, audience connection]
+
+**[EXPLORER]:**  
+[Reflection, what this means, call-to-action]
+
+---
+
+## CLOSING (1 minute)
+
+**MARK:**  
+[Thank guest, remind viewers to watch documentary, subscribe]
+
+**[EXPLORER]:**  
+[Final thought, invitation to connect]
+
+---
+```
+
+**Podcast Generation with Audio Tags:**
+```bash
+# Use ElevenLabs text-to-dialogue API (Eleven v3) for natural conversation
+# Model: fal-ai/elevenlabs/text-to-dialogue/eleven-v3
+DIALOGUE_ENDPOINT="https://fal.run/fal-ai/elevenlabs/text-to-dialogue/eleven-v3"
+
+# Voice IDs (discovered via ElevenLabs MCP)
+HOST_VOICE_ID="gs0tAILXbY5DNrJrsM6F"           # Jeff (Mark) - Professional host
+EXPLORER_VOICE_ID="zWoalRDt5TZrmW4ROIA7"       # Anju (Brooklyn) - Field ecologist
+
+# Generate podcast with expressive audio tags
+# Audio tags enhance natural conversation flow and emotional expression
+curl -s -X POST "$DIALOGUE_ENDPOINT" \
+    -H "Authorization: Key $FAL_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "dialogue": [
+            {
+                "speaker_id": "'"$HOST_VOICE_ID"'",
+                "text": "[warm] Welcome back to Hidden Nature. I'\''m Jeff, and today I'\''m sitting down with field ecologist Anju. [curious] Anju, welcome."
+            },
+            {
+                "speaker_id": "'"$EXPLORER_VOICE_ID"'",
+                "text": "[chuckles] Thanks for having me, Jeff. [sighs] I'\''m STILL finding forest dirt in my gear."
+            },
+            {
+                "speaker_id": "'"$HOST_VOICE_ID"'",
+                "text": "[amused] So... mushroom apartments. That'\''s not exactly standard scientific terminology."
+            },
+            {
+                "speaker_id": "'"$EXPLORER_VOICE_ID"'",
+                "text": "[laughs] No, it'\''s not. But the first time I crouched down... [excited] that'\''s what I saw!"
+            }
+        ]
+    }'
+
+# Audio Tags for Podcast Dialogue:
+# - Emotional: [excited], [curious], [thoughtful], [amazed], [concerned]
+# - Reactions: [laughs], [chuckles], [sighs], [gasps]
+# - Delivery: [warm], [seriously], [enthusiastically], [reflectively]
+# - Pacing: [pause], [slowly], [quickly]
+# - Emphasis: CAPITAL words for stress
+```
+
+**Enhanced Podcast Script Format:**
+```markdown
+**HOST:** [warm] Welcome to the show. [curious] Tell us about your research.
+
+**GUEST:** [excited] It started three weeks ago... [pause] I was tracking fungus gnats.
+
+**HOST:** [surprised] And what did you discover?
+
+**GUEST:** [laughs] They weren't vanishing—[amazed] they were checking into mushroom hotels!
+```
+
+#### **Quality Checklist:**
+- [ ] Mobile version generated in native 9:16 format (NOT cropped)
+- [ ] All mobile videos use same narration and music as desktop
+- [ ] Mobile documentary compiled and verified
+- [ ] Substack article written (2,500-3,000 words)
+- [ ] Article includes 8-10 images extracted from documentary
+- [ ] Podcast script written (15-20 minutes, conversational)
+- [ ] Podcast audio generated with appropriate voices
+- [ ] All companion content links to main documentary
+
+---
+
+### **PHASE 11: YouTube Publishing Package Generation**
 *Create complete YouTube metadata and publishing materials automatically*
 
 #### **Human Process:**
@@ -483,6 +1136,43 @@ fi
 
 ## 🎭 **GENRE-SPECIFIC ADAPTATIONS**
 
+### **Hidden Nature Explorer Series**
+*Documentaries featuring on-camera scientist/explorers investigating natural phenomena*
+
+**Format**: Explorer introduces themselves (Scene 1), appears periodically throughout documentary, closes with reflection (final scene)
+
+**Explorer Character Consistency Requirements**:
+- Scene 1 photo/headshot required before production
+- Image-to-video for ALL explorer appearances
+- Extract reference frame from Scene 1 for subsequent scenes
+- Maintain same explorer throughout documentary (no switching mid-story)
+
+**Current Hidden Nature Explorers**:
+
+**Charlotte** (Marine Biologist)
+- **Voice**: Lucy (lcMyyd2HUfFzxdCaC4Ta) - Warm, thoughtful, emotional depth
+- **Personality**: Searching for meaning, emotional connections, empathetic scientist
+- **Specialty**: Ocean expeditions, underwater intelligence, marine life
+- **Example**: "The Octopus Mind: Charlotte's Cosmos Home Quest"
+- **Visual Style**: Wetsuit, research vessel, underwater gear, professional marine biologist aesthetic
+- **Physical Description for Prompts**: "Female marine biologist with wetsuit and diving gear, professional scientist appearance"
+
+**Anju** (Forest Micro-Ecologist)
+- **Voice**: Jessica (evolved from Matilda) - Playful, curious, wonder-filled
+- **Personality**: Delighted by tiny worlds, enthusiastic about hidden ecosystems
+- **Specialty**: Forest floors, mushrooms, insects, micro-ecosystems
+- **Example**: "The Mushroom Apartments: Hidden Tenants of the Forest Floor"
+- **Visual Style**: Field jacket, magnifying glass/loupe, forest environment, curious scientist aesthetic
+- **Physical Description for Prompts**: "Young South Asian female scientist with long dark hair, warm smile, field jacket"
+
+**Production Notes for Explorer Documentaries**:
+- Explorer appears in 3 scenes typically: intro (1), mid-documentary interaction (15-17), closing reflection (final)
+- Use image-to-video for ALL three appearances
+- **CRITICAL**: Use consistent physical description in prompts (NOT explorer's name)
+- Narrator voice MUST match explorer's voice (Lucy for Charlotte, Jessica for Anju)
+- First-person narration style ("I'm Charlotte..." / "I'm Anju...")
+- Explorer provides human connection and emotional through-line
+
 ### **Science Documentaries**
 - **Narrator**: Rachel (cosmic wonder), Marcus (historical authority), **Oracle X (professional precision)**
 - **Visual Focus**: Educational concepts, diagrams, space imagery, microscopic details
@@ -530,6 +1220,49 @@ for scene in {1..24}; do
 done
 ```
 
+### **Problem: Audio Dropouts During Concatenation**
+**Symptoms:** Audio cuts out between scenes, silence gaps, or audio drops completely during final assembly  
+**Root Cause:** Inconsistent audio properties across mixed scenes (different sample rates, channel counts, or codecs)  
+**Why It Happens:** Some video generation outputs have 48kHz stereo audio instead of 44.1kHz mono, creating incompatible audio streams  
+**Solution (MANDATORY):**
+```bash
+# VERIFY audio consistency across ALL mixed scenes BEFORE concatenation
+echo "Checking audio consistency across all mixed scenes..."
+for scene in {1..24}; do
+    props=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels \
+        -of default=noprint_wrappers=1:nokey=1 "final/scene${scene}_mixed.mp4" | tr '\n' ' ')
+    
+    if [[ "$props" != "aac 44100 1 " ]]; then
+        echo "❌ Scene $scene: AUDIO MISMATCH - $props"
+        echo "   Expected: aac 44100 1 (AAC codec, 44.1kHz, mono)"
+        echo "   REGENERATING with correct settings..."
+        
+        # Remix with explicit audio consistency parameters
+        ffmpeg -y -i "videos/scene${scene}.mp4" \
+                  -i "audio/scene${scene}.mp3" \
+                  -i "music/scene${scene}_music.wav" \
+            -filter_complex "[0:a]volume=0.175[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.20[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
+            -map 0:v -map "[audio]" \
+            -c:v copy -c:a aac -ac 1 -ar 44100 \
+            "final/scene${scene}_mixed.mp4" 2>/dev/null
+        
+        echo "   ✅ Scene $scene remixed with consistent audio"
+    else
+        echo "✅ Scene $scene: Audio properties correct"
+    fi
+done
+
+echo ""
+echo "✅ All scenes verified for audio consistency"
+echo "   Safe to proceed with concatenation"
+```
+
+**Prevention:** Always include explicit audio parameters in mixing phase:
+- `-c:a aac` (AAC codec)
+- `-ac 1` (mono/1 channel)
+- `-ar 44100` (44.1kHz sample rate)
+- `-dropout_transition 0` (prevent gaps during mixing)
+
 ### **Problem: Speech in Video Ambient Audio**
 **Symptoms:** Unwanted dialogue bleeding through despite "no speech, ambient only" prompt  
 **Root Cause:** AI video generation occasionally includes speech despite prompt instructions  
@@ -562,26 +1295,63 @@ ffmpeg -y -i "videos/scene${N}.mp4" -i "audio/scene${N}.mp3" \
 ### **API Specifications**
 ```json
 {
-    "audio": {
+    "narration": {
         "endpoint": "https://fal.run/fal-ai/elevenlabs/tts/eleven-v3",
-        "voice": "Rachel|Roger|Charlotte|Marcus|Matilda|Oracle X (1hlpeD1ydbI2ow0Tt3EW)|etc.",
-        "stability": 0.5,
+        "voice": "Rachel|Roger|Charlotte|Marcus|Matilda|Jessica|Oracle X (1hlpeD1ydbI2ow0Tt3EW)|Brooklyn|etc.",
+        "stability": 0.4-0.5,
         "similarity_boost": 0.75,
-        "style": 0.7,
-        "speed": 1.0
+        "style": 0.5,
+        "speed": 1.0,
+        "audio_tags_support": true,
+        "notes": "Use stability 0.3-0.5 for audio tag expressiveness. Discover voices via ElevenLabs MCP."
     },
-    "video": {
+    "video_text_to_video": {
         "endpoint": "https://fal.run/fal-ai/veo3/fast",
         "duration": 8,
-        "aspect_ratio": "16:9",
+        "aspect_ratio": "16:9 or 9:16",
         "resolution": "1080p",
-        "seed": "environment_specific or drift_pattern"
+        "seed": "environment_specific or drift_pattern",
+        "generate_audio": true
+    },
+    "video_image_to_video": {
+        "endpoint": "https://fal.run/fal-ai/veo3/fast/image-to-video",
+        "duration": "8s",
+        "aspect_ratio": "16:9 or 9:16",
+        "resolution": "1080p",
+        "image_url": "https://... or data:image/jpeg;base64,...",
+        "generate_audio": true
+    },
+    "music": {
+        "endpoint": "https://fal.run/fal-ai/stable-audio-25/text-to-audio",
+        "seconds_total": 8,
+        "num_inference_steps": 8,
+        "guidance_scale": 7
+    },
+    "podcast": {
+        "endpoint": "https://fal.run/fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
+        "model": "fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
+        "dialogue": [
+            {
+                "speaker_id": "voice_id_1",
+                "text": "[warm] Dialogue with audio tags... [pause] for expressiveness."
+            },
+            {
+                "speaker_id": "voice_id_2",
+                "text": "[excited] Response with emotional cues!"
+            }
+        ],
+        "audio_tags": "[emotional], [actions], [delivery], [pacing]",
+        "notes": "Use ElevenLabs MCP for voice discovery. Audio tags enhance natural conversation."
     }
 }
 ```
 
 ### **Software Requirements**
 - **fal.ai API key** with sufficient credits
+- **ElevenLabs API key** for direct TTS/podcast generation
+- **ElevenLabs MCP server** (optional but recommended for voice discovery)
+  - Install: `uvx elevenlabs-mcp`
+  - Configure in `~/.cursor/mcp.json` or Claude Desktop config
 - **FFmpeg** for audio/video processing
 - **curl** for API calls
 - **jq** for JSON parsing
@@ -604,10 +1374,16 @@ documentary_project/
 - **Narration timing**: 6.0-7.8 seconds (95%+ accuracy)
 - **Narration padding**: ALL scenes exactly 8.000s (prevents audio bleeding)
 - **Video generation**: 100% success rate with retry logic
-- **Final resolution**: 1080p broadcast quality (1920×1080)
-- **Audio mixing**: Clear narration (1.3x) + subtle ambient (0.25x)
+- **Final resolution**: 1080p broadcast quality (1920×1080 or 1080×1920)
+- **Audio mixing**: Three-layer cinematic mix
+  - Video ambient: 0.25x (subtle environmental sound)
+  - Narration: 1.3x (clear, prominent voiceover)
+  - Scene music: 0.15x (supportive, expressive scoring)
+- **Audio consistency**: ALL scenes output as AAC 44.1kHz mono
+- **Music generation**: Unique 8-second clip per scene with thematic coherence
 - **Speech detection**: Zero tolerance - narration-only for problematic scenes
-- **Total duration**: Exactly 24 × 8s = 192s (3m 12s)
+- **Total duration**: Exactly 24-26 × 8s = 192-208s (3:12-3:28)
+- **Multi-platform**: Native generation for desktop (16:9) and mobile (9:16)
 
 ---
 
@@ -675,24 +1451,52 @@ documentary_project/
 ## 🌟 **PROVEN RESULTS & INNOVATIONS**
 
 ### **Completed Documentaries**
+
+#### **Science Documentaries**
 1. **"What Happens Inside a Black Hole?"** - 94MB, 3:04, perfect sync, cosmic physics
    - Rachel's cosmic narration, concept-focused approach
    - Demonstrates science documentary methodology
 
-2. **"Carnotaurus Family Hunt"** - 215MB, 3:04, visual continuity, family drama
+2. **"The Secret Architecture of Seeds"** - 192MB, 3:12, perfect synchronization
+   - Pioneered narration padding technique for 8.000s boundaries
+   - Solved speech bleeding with narration-only mixing approach
+   - Demonstrated tighter timing thresholds (6.0-7.8s) for precision sync
+
+#### **Nature Documentaries**
+3. **"Carnotaurus Family Hunt"** - 215MB, 3:04, visual continuity, family drama
    - Roger's dramatic narration, character consistency system
    - Showcases nature documentary character-driven storytelling
 
-3. **"Eye Evolution - The Jewel of Evolution"** - 194MB, 3:12, seed drift technique
+4. **"Eye Evolution - The Jewel of Evolution"** - 194MB, 3:12, seed drift technique
    - Desktop version (16:9): 1080p educational documentary
    - Mobile version (9:16): Optimized for social media platforms
    - 5 YouTube Shorts: 60-second viral-ready clips
    - Pioneered seed drift technique for evolutionary narratives
 
-4. **"The Secret Architecture of Seeds"** - 192MB, 3:12, perfect synchronization
-   - Pioneered narration padding technique for 8.000s boundaries
-   - Solved speech bleeding with narration-only mixing approach
-   - Demonstrated tighter timing thresholds (6.0-7.8s) for precision sync
+#### **Hidden Nature Explorer Series**
+5. **"The Octopus Mind: Charlotte's Cosmos Home Quest"** - 3:28, explorer-led documentary
+   - **Charlotte** (Marine Biologist) - Lucy voice (lcMyyd2HUfFzxdCaC4Ta)
+   - First explorer-led documentary with character consistency
+   - Emotional journey of octopus finding home
+   - Image-to-video for Charlotte's intro scene
+   - Companion podcast episode with Mark & Charlotte
+   - Substack field journal article from Charlotte's POV
+
+6. **"The Mushroom Apartments: Hidden Tenants of the Forest Floor"** - 3:28, 26 scenes, explorer-led documentary
+   - **Anju** (Forest Micro-Ecologist) - Jessica voice (Matilda evolved)
+   - Pioneered full explorer character consistency system
+   - Image-to-video for ALL three Anju appearances (scenes 1, 16, 26)
+   - Reference frame extraction methodology established
+   - Demonstrates micro-world exploration with macro photography
+   - Playful, curious tone distinguishing Anju from Charlotte
+   - **NEW:** Scene-specific music generation (26 unique 8s clips)
+   - **NEW:** Three-layer audio mixing (ambient + narration + music)
+   - **NEW:** Audio consistency troubleshooting (44.1kHz mono requirement)
+   - **NEW:** Native 9:16 mobile regeneration (1080x1920 portrait)
+   - **NEW:** Companion content ecosystem (field journal + podcast)
+   - Substack field journal: 2,847-word first-person article from Anju's POV
+   - Podcast episode: Mark (Jeff voice) interviews Anju about expedition
+   - Full post-production pipeline demonstration
 
 ### **Technical Breakthroughs**
 
@@ -700,17 +1504,39 @@ documentary_project/
 - **Narration Padding Algorithm**: All scenes padded to 8.000s preventing audio bleeding
 - **Speech Bleeding Detection**: Narration-only mixing for problematic ambient audio
 - **Precision Timing Control**: 6.0-7.8s targeting for perfect synchronization
+- **Audio Consistency Enforcement**: Mandatory 44.1kHz mono AAC output prevents concatenation dropouts
+- **Three-Layer Mixing Standard**: Video ambient (0.25x) + narration (1.3x) + music (0.15x)
+
+#### **Musical Scoring Innovations**
+- **Scene-Specific Music Generation**: Unique 8-second clips for each scene using Stable Audio 2.5
+- **Expressive Musical Storytelling**: Each scene's music captures its unique mood and content
+- **Thematic Coherence**: Individual clips maintain overall documentary atmosphere
+- **Dynamic Musical Range**: Acoustic, orchestral, and synth elements across scenes
 
 #### **Visual Consistency Systems**
 - **Seed Drift Technique**: Progressive seeds (50000→50023) for evolutionary narratives
 - **Character Consistency Framework**: Maintains same characters throughout nature stories
 - **Environmental Dynamics**: Multiple environments with consistent visual identity
+- **Explorer Character Consistency**: Image-to-video methodology for on-camera scientists
+  - Scene 1 photo establishes explorer appearance
+  - Reference frame extraction for subsequent appearances
+  - Maintains perfect visual consistency across all explorer scenes
+  - Prevents character drift in multi-scene appearances
+  - **Data URI Method**: Base64 encoding for reliable local image uploads
+
+#### **Multi-Platform Production**
+- **Native 9:16 Generation**: ALL videos regenerated in portrait format (NO cropping)
+- **Companion Content Ecosystem**: Integrated Substack + Podcast production pipeline
+- **Field Journal Articles**: 2,500-3,000 word first-person explorer narratives
+- **Podcast Episodes**: ElevenLabs text-to-dialogue for natural host/guest conversations
+- **Parallel Processing**: All scenes, music, and content generated simultaneously
 
 #### **Production Efficiency**
-- **Multi-Format Production**: Single content adapted for desktop, mobile, and shorts
+- **Multi-Format Production**: Single content adapted for desktop (16:9), mobile (9:16), and shorts
 - **Parallel Processing**: All scenes generated simultaneously for maximum speed
-- **Cinematic Audio Standard**: Balanced mix (0.25x ambient, 1.3x narration)
+- **Cinematic Audio Standard**: Three-layer balanced mix with scene-specific music
 - **Simplified Shorts Creation**: Direct extraction avoiding complex concatenation
+- **Automated Post-Production**: Systematic mobile, journal, and podcast generation
 
 ### **Technical Achievements**
 - **100% scene success rates** across all completed documentaries
@@ -722,14 +1548,28 @@ documentary_project/
 
 ### **System Capabilities**
 This master production system can create unlimited Netflix-quality educational documentaries across any genre (Science, Nature, History, Psychology) with:
-- **Perfect synchronization** eliminating audio bleeding issues
+- **Perfect synchronization** eliminating audio bleeding through 8.000s padding
+- **Audio consistency enforcement** preventing concatenation dropouts (44.1kHz mono AAC)
+- **Three-layer cinematic audio** with scene-specific music scoring
 - **Professional quality** meeting broadcast standards
 - **Genre flexibility** adapting to different educational content types
+- **Explorer character consistency** maintaining visual identity across scenes
 - **Production speed** completing documentaries in under an hour
 - **Cost efficiency** through parallel processing and smart regeneration
-- **Multi-platform optimization** for desktop, mobile, and social media
+- **ElevenLabs MCP integration** for efficient voice discovery and testing
+- **Expressive audio with Eleven v3 tags** for natural emotional delivery
+  - Emotional directions: [excited], [thoughtful], [curious]
+  - Non-verbal sounds: [laughs], [sighs], [pause]
+  - Enhanced podcast conversations with natural reactions
+- **Multi-platform ecosystem** including:
+  - Desktop documentaries (16:9, 1080p)
+  - Mobile documentaries (9:16, 1080x1920, native regeneration)
+  - Substack field journals (2,500-3,000 words, first-person narratives)
+  - Companion podcasts (15-20 minutes, natural dialogue with audio tags)
+  - YouTube Shorts (60s clips)
+- **Automated post-production pipeline** for complete content ecosystem
 
-**The system is production-ready for unlimited high-quality educational content creation for the Hidden Nature channel across all major platforms and genres.** 🎬✨
+**The system is production-ready for unlimited high-quality educational content creation for the Hidden Nature channel across all major platforms and genres, with full companion content generation.** 🎬✨
 
 ### **Hidden Nature Channel Benefits**
 - **Unified Brand Identity**: All content reveals hidden wonders in nature and science
