@@ -18,29 +18,29 @@ echo ""
 
 DIALOGUE_JSON=$(cat <<'EOF'
 {
-  "dialogue": [
+  "inputs": [
     {
-      "speaker_id": "gs0tAILXbY5DNrJrsM6F",
+      "voice": "iP95p4xoKVk53GoZ742B",
       "text": "[warm] Welcome back to Hidden Nature. I'm Jeff, and today I'm sitting down with field ecologist Anju, who just returned from three weeks studying what she calls mushroom apartments in the Pacific Northwest. [curious] Anju, welcome."
     },
     {
-      "speaker_id": "zWoalRDt5TZrmW4ROIA7",
+      "voice": "cgSgspJ2msm6clMCkdW9",
       "text": "[chuckles] Thanks for having me, Jeff. [sighs] I'm STILL finding forest dirt in my gear."
     },
     {
-      "speaker_id": "gs0tAILXbY5DNrJrsM6F",
+      "voice": "iP95p4xoKVk53GoZ742B",
       "text": "[amused] So... mushroom apartments. That's not exactly standard scientific terminology."
     },
     {
-      "speaker_id": "zWoalRDt5TZrmW4ROIA7",
+      "voice": "cgSgspJ2msm6clMCkdW9",
       "text": "[laughs] No, it's not. But the first time I crouched down with my magnifying glass and really watched what was happening... [excited] that's what I saw. Tiny residents moving in, setting up shop, raising families. Like watching a whole apartment complex come to life in fast-forward."
     },
     {
-      "speaker_id": "gs0tAILXbY5DNrJrsM6F",
+      "voice": "iP95p4xoKVk53GoZ742B",
       "text": "[interested] What made you start looking at mushrooms this way?"
     },
     {
-      "speaker_id": "zWoalRDt5TZrmW4ROIA7",
+      "voice": "cgSgspJ2msm6clMCkdW9",
       "text": "[thoughtful] Most people see a mushroom and think Oh, a mushroom. They see one thing. But I was tracking fungus gnats for another project, and I kept LOSING them. [frustrated] They'd just... vanish. [pause] Turns out they weren't vanishing—[excited] they were checking into the mushroom hotel!"
     }
   ]
@@ -49,9 +49,9 @@ EOF
 )
 
 echo "🎬 Submitting to fal-ai/elevenlabs/text-to-dialogue/eleven-v3..."
-echo "   Voice IDs:"
-echo "   - Jeff: gs0tAILXbY5DNrJrsM6F (Mark)"
-echo "   - Anju: zWoalRDt5TZrmW4ROIA7 (Brooklyn)"
+echo "   Voices:"
+echo "   - Jeff: Chris (iP95p4xoKVk53GoZ742B - premade male)"
+echo "   - Anju: Jessica (cgSgspJ2msm6clMCkdW9 - premade female)"
 echo ""
 
 # Submit request to dialogue API
@@ -90,11 +90,11 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
     echo ""
     
     # Get the result
-    RESULT=$(curl -s "https://queue.fal.run/fal-ai/elevenlabs/text-to-dialogue/eleven-v3/requests/${REQUEST_ID}" \
+    RESULT=$(curl -s "https://queue.fal.run/fal-ai/elevenlabs/requests/${REQUEST_ID}" \
       -H "Authorization: Key ${FAL_KEY}")
     
-    # Extract audio URL (check for audio_url or audio field)
-    AUDIO_URL=$(echo "$RESULT" | jq -r '.audio_url.url // .audio.url // empty' 2>/dev/null)
+    # Extract audio URL from response
+    AUDIO_URL=$(echo "$RESULT" | jq -r '.audio.url // empty' 2>/dev/null)
     
     if [ -z "$AUDIO_URL" ]; then
       echo "❌ Error: No audio URL in response"

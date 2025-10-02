@@ -25,34 +25,82 @@ This system creates Netflix-quality educational documentaries through an AI-powe
 
 ## 📋 **COMPLETE PRODUCTION PROCESS**
 
-### **PHASE 1: Project Foundation**
-*Establish clean working environment and define documentary parameters*
+### **PHASE 1: Multi-Platform Project Foundation**
+*Establish clean working environment with organized structure for complete content ecosystem*
 
 #### **Human Process:**
-1. Create dedicated project directory for the documentary
+1. Create dedicated project directory with multi-platform structure
 2. Set up API credentials and environment variables
 3. Define core documentary parameters (topic, channel, narrator, style)
 4. Research inspiration sources (Carl Sagan, Attenborough transcripts)
 
 #### **Technical Implementation:**
 ```bash
-# 1. Create clean project directory
-mkdir -p documentary_name
-cd documentary_name
+# 1. Create multi-platform project structure
+PROJECT_NAME="mushroom_apartments"  # or "black_holes", "seed_architecture", etc.
+
+mkdir -p "$PROJECT_NAME"
+cd "$PROJECT_NAME"
+
+# Create organized folder structure for complete ecosystem
+mkdir -p documentary/{videos,audio,music,final,responses,mobile}
+mkdir -p field_journal/{images,drafts}
+mkdir -p podcast/{segments,full}
+
+# Copy environment credentials
 cp ../.env .
 
 # 2. Define documentary parameters
-TOPIC="topic_name"           # e.g., "black_holes", "seed_architecture"
+TOPIC="topic_name"           # e.g., "mushroom_apartments", "black_holes"
 CHANNEL="channel_type"       # science, nature, history, psychology
-NARRATOR="voice_name"        # Rachel, Roger, Charlotte, Marcus, Matilda, Oracle X (Professional)
+NARRATOR="voice_name"        # Chris, Jessica, Rachel, Roger, Charlotte, Oracle X
+EXPLORER_VOICE="voice_name"  # For podcast (Jessica, Lucy, etc.)
+HOST_VOICE="voice_name"      # For podcast (Chris, Mark, etc.)
 STYLE="documentary_type"     # cosmic_wonder, nature_drama, historical_narrative
+
+# 3. Document project structure
+cat > README.md << 'EOF'
+# [Project Name] - Multi-Platform Content Ecosystem
+
+## Project Structure
+
+### documentary/
+- **videos/** - Generated video clips (text-to-video & image-to-video)
+- **audio/** - Narration audio files (TTS)
+- **music/** - Scene-specific music clips
+- **final/** - Mixed scenes ready for concatenation
+- **mobile/** - Native 9:16 mobile video versions
+- **responses/** - API response logs
+- **.mp4 files** - Final 16:9 and 9:16 documentaries
+
+### field_journal/
+- **images/** - Extracted frames from documentary
+- **drafts/** - Article drafts and revisions
+- **.md files** - Published Substack field journal
+
+### podcast/
+- **segments/** - Individual topic segments (for social clips)
+- **full/** - Complete podcast episode
+- **.mp3 files** - Podcast audio files
+
+## Workflow
+1. Generate documentary (Phase 1-9)
+2. Extract images and create field journal (Phase 10)
+3. Generate podcast segments in parallel (Phase 10)
+4. Publish across all platforms (Phase 11)
+EOF
 ```
 
 #### **Quality Checklist:**
-- [ ] Clean project directory created
+- [ ] Multi-platform project structure created
+  - [ ] `documentary/` folder with subfolders
+  - [ ] `field_journal/` folder with subfolders
+  - [ ] `podcast/` folder with subfolders
 - [ ] API credentials copied and verified
 - [ ] Documentary topic and channel defined
-- [ ] Narrator voice selected based on genre
+- [ ] Narrator voice selected (documentary)
+- [ ] Podcast voices selected (host + guest)
+- [ ] README.md documenting structure created
 - [ ] Inspiration research completed
 
 ---
@@ -1359,15 +1407,32 @@ ffmpeg -y -i "videos/scene${N}.mp4" -i "audio/scene${N}.mp3" \
 
 ### **File Structure**
 ```
-documentary_project/
+project_name/                      # Multi-platform project root
 ├── .env                           # API credentials
-├── SCRIPT.md                      # Master script with scenes
-├── generate_documentary.sh        # Main production script
-├── audio/                         # Generated TTS files
-├── videos/                        # Generated video clips
-├── final/                         # Mixed audio+video scenes
-├── FINAL_DOCUMENTARY_1080P.mp4    # Completed documentary
-└── responses/                     # API response logs
+├── README.md                      # Project structure documentation
+├── SCRIPT.md                      # Master documentary script
+│
+├── documentary/                   # Documentary production
+│   ├── videos/                    # Generated video clips (16:9)
+│   ├── audio/                     # Narration TTS files
+│   ├── music/                     # Scene-specific music
+│   ├── final/                     # Mixed scenes
+│   ├── mobile/                    # Native 9:16 videos
+│   ├── responses/                 # API logs
+│   ├── generate_documentary.sh   # Main production script
+│   ├── FINAL_DOCUMENTARY.mp4     # 16:9 output
+│   └── FINAL_DOCUMENTARY_MOBILE.mp4  # 9:16 output
+│
+├── field_journal/                 # Substack content
+│   ├── images/                    # Extracted documentary frames
+│   ├── drafts/                    # Article drafts
+│   └── FIELD_JOURNAL_[NAME].md   # Published article
+│
+└── podcast/                       # Podcast content
+    ├── segments/                  # Individual topic clips
+    ├── full/                      # Complete episode
+    ├── generate_podcast.sh        # Parallel generation script
+    └── PODCAST_[NAME]_FULL.mp3   # Final podcast
 ```
 
 ### **Quality Targets**
