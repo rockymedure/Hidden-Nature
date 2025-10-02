@@ -177,7 +177,7 @@ for i in {0..23}; do
         
         audio_url=$(echo "$response" | jq -r '.audio.url')
         if [[ -n "$audio_url" && "$audio_url" != "null" ]]; then
-            curl -s -o "audio/scene${scene}.mp3" "$audio_url"
+            curl -s -o "documentary/audio/scene${scene}.mp3" "$audio_url"
             echo "✅ Scene $scene: Narration saved"
         fi
     ) &
@@ -337,8 +337,8 @@ This phase prevents the most common documentary production issue: audio bleeding
 declare -a scenes_to_regenerate=()
 
 for scene in {1..24}; do
-    if [[ -f "audio/scene${scene}.mp3" ]]; then
-        duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "audio/scene${scene}.mp3")
+    if [[ -f "documentary/audio/scene${scene}.mp3" ]]; then
+        duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "documentary/audio/scene${scene}.mp3")
         
         # Target: 6.0-7.8 seconds (tighter range for perfect sync)
         if (( $(echo "$duration < 6.0" | bc -l) )) || (( $(echo "$duration > 7.8" | bc -l) )); then
@@ -355,14 +355,14 @@ done
 
 # CRITICAL: Pad all narrations to exactly 8.000 seconds to prevent bleeding
 for scene in {1..24}; do
-    if [[ -f "audio/scene${scene}.mp3" ]]; then
-        duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "audio/scene${scene}.mp3")
+    if [[ -f "documentary/audio/scene${scene}.mp3" ]]; then
+        duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "documentary/audio/scene${scene}.mp3")
         
         needs_padding=$(echo "$duration < 8.0" | bc -l)
         if [[ $needs_padding -eq 1 ]]; then
             echo "Scene $scene: ${duration}s → 8.000s (adding silence padding)"
-            ffmpeg -y -i "audio/scene${scene}.mp3" -filter_complex "[0:a]apad=pad_dur=8.0[padded]" -map "[padded]" -t 8.0 "audio/scene${scene}_padded.mp3"
-            mv "audio/scene${scene}_padded.mp3" "audio/scene${scene}.mp3"
+            ffmpeg -y -i "documentary/audio/scene${scene}.mp3" -filter_complex "[0:a]apad=pad_dur=8.0[padded]" -map "[padded]" -t 8.0 "documentary/audio/scene${scene}_padded.mp3"
+            mv "documentary/audio/scene${scene}_padded.mp3" "documentary/audio/scene${scene}.mp3"
         fi
     fi
 done
@@ -464,12 +464,12 @@ response=$(curl -s -X POST "$IMAGE_TO_VIDEO_ENDPOINT" \
     }")
 
 # After Scene 1 completes: Extract reference frame
-ffmpeg -y -i "videos/scene1.mp4" -ss 4 -frames:v 1 "explorer_reference.jpg"
+ffmpeg -y -i "documentary/videos/scene1.mp4" -ss 4 -frames:v 1 "documentary/explorer_reference.jpg"
 
 # Upload reference for subsequent scenes
 upload_response=$(curl -s -X POST "https://fal.run/fal-ai/files/upload" \
     -H "Authorization: Key $FAL_API_KEY" \
-    -F "file=@explorer_reference.jpg")
+    -F "file=@documentary/explorer_reference.jpg")
 explorer_ref_url=$(echo "$upload_response" | jq -r '.url')
 
 # Scene 16: Explorer examining specimen (use reference)
@@ -566,7 +566,7 @@ for i in {0..23}; do
             
             video_url=$(echo "$response" | jq -r '.video.url')
             if [[ -n "$video_url" && "$video_url" != "null" ]]; then
-                curl -s -o "videos/scene${scene}.mp4" "$video_url"
+                curl -s -o "documentary/videos/scene${scene}.mp4" "$video_url"
                 echo "✅ Scene $scene: Explorer video saved"
             fi
         ) &
@@ -593,7 +593,7 @@ for i in {0..23}; do
         
         video_url=$(echo "$response" | jq -r '.video.url')
         if [[ -n "$video_url" && "$video_url" != "null" ]]; then
-            curl -s -o "videos/scene${scene}.mp4" "$video_url"
+            curl -s -o "documentary/videos/scene${scene}.mp4" "$video_url"
             echo "✅ Scene $scene: Video saved"
         fi
     ) &
@@ -627,7 +627,7 @@ Create scene-specific music that expresses the unique mood, emotion, and content
 ```bash
 # Define music prompts for each scene based on content and mood
 MUSIC_ENDPOINT="https://fal.run/fal-ai/stable-audio-25/text-to-audio"
-mkdir -p music
+mkdir -p documentary/music
 
 # Example scene-specific music prompts array
 declare -a music_prompts=(
@@ -657,7 +657,7 @@ for i in "${!music_prompts[@]}"; do
         audio_url=$(echo "$response" | jq -r '.audio.url')
         
         if [[ -n "$audio_url" && "$audio_url" != "null" ]]; then
-            curl -s -o "music/scene${scene}_music.wav" "$audio_url"
+            curl -s -o "documentary/music/scene${scene}_music.wav" "$audio_url"
             echo "✅ Scene $scene: Music generated"
         else
             echo "❌ Scene $scene: Music generation failed"
@@ -701,10 +701,10 @@ This phase combines three audio layers: video ambient audio (0.25x), narration (
 # All scenes MUST output as: AAC codec, 44.1kHz sample rate, mono (1 channel)
 
 for scene in {1..24}; do
-    VIDEO_FILE="videos/scene${scene}.mp4"
-    NARRATION_FILE="audio/scene${scene}.mp3"
-    MUSIC_FILE="music/scene${scene}_music.wav"
-    MIXED_OUTPUT="final/scene${scene}_mixed.mp4"
+    VIDEO_FILE="documentary/videos/scene${scene}.mp4"
+    NARRATION_FILE="documentary/audio/scene${scene}.mp3"
+    MUSIC_FILE="documentary/music/scene${scene}_music.wav"
+    MIXED_OUTPUT="documentary/final/scene${scene}_mixed.mp4"
     
     if [[ -f "$VIDEO_FILE" && -f "$NARRATION_FILE" && -f "$MUSIC_FILE" ]]; then
         echo "🔊 Mixing scene $scene (video + narration + music)..."
@@ -741,20 +741,20 @@ done
 # Verify audio consistency across all mixed scenes
 for scene in {1..24}; do
     props=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels \
-        -of default=noprint_wrappers=1:nokey=1 "final/scene${scene}_mixed.mp4" | tr '\n' ' ')
+        -of default=noprint_wrappers=1:nokey=1 "documentary/final/scene${scene}_mixed.mp4" | tr '\n' ' ')
     
     if [[ "$props" != "aac 44100 1 " ]]; then
         echo "❌ Scene $scene: Audio mismatch - $props (expected: aac 44100 1)"
         echo "   REGENERATING with correct settings..."
         
         # Regenerate with explicit audio settings
-        ffmpeg -y -i "videos/scene${scene}.mp4" \
-                  -i "audio/scene${scene}.mp3" \
-                  -i "music/scene${scene}_music.wav" \
+        ffmpeg -y -i "documentary/videos/scene${scene}.mp4" \
+                  -i "documentary/audio/scene${scene}.mp3" \
+                  -i "documentary/music/scene${scene}_music.wav" \
             -filter_complex "[0:a]volume=0.175[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.20[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
                 -map 0:v -map "[audio]" \
             -c:v copy -c:a aac -ac 1 -ar 44100 \
-                "final/scene${scene}_mixed.mp4" 2>/dev/null
+                "documentary/final/scene${scene}_mixed.mp4" 2>/dev/null
     fi
 done
 ```
@@ -775,26 +775,28 @@ done
 #### **Technical Implementation:**
 ```bash
 # Create scene list and compile final documentary
-> scene_list.txt
+> documentary/scene_list.txt
 for scene in {1..24}; do
-    if [[ -f "final/scene${scene}_mixed.mp4" ]]; then
-        echo "file 'final/scene${scene}_mixed.mp4'" >> scene_list.txt
+    if [[ -f "documentary/final/scene${scene}_mixed.mp4" ]]; then
+        echo "file 'final/scene${scene}_mixed.mp4'" >> documentary/scene_list.txt
     fi
 done
 
 # Compile final documentary with stream copy (NO re-encoding)
 # This preserves the consistent audio properties from mixing phase
-ffmpeg -y -f concat -safe 0 -i scene_list.txt -c copy "FINAL_DOCUMENTARY_1080P.mp4"
+cd documentary
+ffmpeg -y -f concat -safe 0 -i scene_list.txt -c copy "FINAL_DOCUMENTARY.mp4"
+cd ..
 
 # Verify final output
-if [[ -f "FINAL_DOCUMENTARY_1080P.mp4" ]]; then
-    duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "FINAL_DOCUMENTARY_1080P.mp4" | cut -d. -f1)
-    filesize=$(ls -lh "FINAL_DOCUMENTARY_1080P.mp4" | awk '{print $5}')
+if [[ -f "documentary/FINAL_DOCUMENTARY.mp4" ]]; then
+    duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "documentary/FINAL_DOCUMENTARY.mp4" | cut -d. -f1)
+    filesize=$(ls -lh "documentary/FINAL_DOCUMENTARY.mp4" | awk '{print $5}')
     echo "✨ Documentary Complete: $((duration / 60))m $((duration % 60))s, $filesize"
     
     # Verify audio consistency in final output
     final_audio=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels \
-        -of default=noprint_wrappers=1:nokey=1 "FINAL_DOCUMENTARY_1080P.mp4" | tr '\n' ' ')
+        -of default=noprint_wrappers=1:nokey=1 "documentary/FINAL_DOCUMENTARY.mp4" | tr '\n' ' ')
     echo "Final audio properties: $final_audio"
 fi
 ```
@@ -823,8 +825,7 @@ After completing the desktop documentary, create platform-specific versions and 
 VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast"
 IMAGE_TO_VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast/image-to-video"
 
-mkdir -p videos_mobile
-mkdir -p final_mobile
+mkdir -p documentary/mobile
 
 # Keep prompts clean - aspect ratio is handled by parameters
 declare -a mobile_prompts=(
@@ -866,29 +867,47 @@ for i in {0..23}; do
     fi
     
     video_url=$(echo "$response" | jq -r '.video.url')
-    curl -s -o "videos_mobile/scene${scene}.mp4" "$video_url"
+    curl -s -o "documentary/mobile/scene${scene}.mp4" "$video_url"
 done
 
 # Mix mobile videos with SAME narration and music
 for scene in {1..24}; do
-    ffmpeg -y -i "videos_mobile/scene${scene}.mp4" \
-              -i "audio/scene${scene}.mp3" \
-              -i "music/scene${scene}_music.wav" \
+    ffmpeg -y -i "documentary/mobile/scene${scene}.mp4" \
+              -i "documentary/audio/scene${scene}.mp3" \
+              -i "documentary/music/scene${scene}_music.wav" \
         -filter_complex "[0:a]volume=0.25[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.15[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
         -map 0:v -map "[audio]" \
         -c:v copy -c:a aac -ac 1 -ar 44100 \
-        "final_mobile/scene${scene}_mixed.mp4" 2>/dev/null
+        "documentary/mobile/scene${scene}_mixed.mp4" 2>/dev/null
 done
 
 # Compile mobile documentary
-> mobile_scene_list.txt
+> documentary/mobile_scene_list.txt
 for scene in {1..24}; do
-    echo "file 'final_mobile/scene${scene}_mixed.mp4'" >> mobile_scene_list.txt
+    echo "file 'mobile/scene${scene}_mixed.mp4'" >> documentary/mobile_scene_list.txt
 done
-ffmpeg -y -f concat -safe 0 -i mobile_scene_list.txt -c copy "FINAL_DOCUMENTARY_MOBILE_9x16.mp4"
+cd documentary
+ffmpeg -y -f concat -safe 0 -i mobile_scene_list.txt -c copy "FINAL_DOCUMENTARY_MOBILE.mp4"
+cd ..
 ```
 
 #### **B. Substack Field Journal Article**
+
+**Step 1: Extract Visual Assets**
+```bash
+# Extract 8-10 compelling frames from documentary for article
+mkdir -p field_journal/images
+
+# Extract key moments (adjust timestamps to match your scenes)
+ffmpeg -i "documentary/FINAL_DOCUMENTARY.mp4" -ss 00:00:10 -frames:v 1 "field_journal/images/scene_01.jpg"
+ffmpeg -i "documentary/FINAL_DOCUMENTARY.mp4" -ss 00:00:45 -frames:v 1 "field_journal/images/scene_05.jpg"
+ffmpeg -i "documentary/FINAL_DOCUMENTARY.mp4" -ss 00:01:20 -frames:v 1 "field_journal/images/scene_10.jpg"
+# Continue for 8-10 key scenes...
+
+echo "✅ Images extracted to field_journal/images/"
+```
+
+**Step 2: Write First-Person Field Journal**
 
 **For Explorer-Led Documentaries:**
 
@@ -1018,35 +1037,52 @@ Create a first-person field journal article from the explorer's perspective, doc
 # Model: fal-ai/elevenlabs/text-to-dialogue/eleven-v3
 DIALOGUE_ENDPOINT="https://fal.run/fal-ai/elevenlabs/text-to-dialogue/eleven-v3"
 
-# Voice IDs (discovered via ElevenLabs MCP)
-HOST_VOICE_ID="gs0tAILXbY5DNrJrsM6F"           # Jeff (Mark) - Professional host
-EXPLORER_VOICE_ID="zWoalRDt5TZrmW4ROIA7"       # Anju (Brooklyn) - Field ecologist
+# Output directories
+mkdir -p podcast/segments
+mkdir -p podcast/full
 
-# Generate podcast with expressive audio tags
-# Audio tags enhance natural conversation flow and emotional expression
+# Voice IDs (discovered via ElevenLabs MCP)
+HOST_VOICE_ID="iP95p4xoKVk53GoZ742B"           # Jeff (Chris) - Professional host
+EXPLORER_VOICE_ID="cgSgspJ2msm6clMCkdW9"       # Anju (Jessica) - Field ecologist
+
+# Generate podcast segments in parallel (saves to podcast/segments/)
+# Then concatenate segments into full episode (saves to podcast/full/)
+
+# Example single segment generation with expressive audio tags
 curl -s -X POST "$DIALOGUE_ENDPOINT" \
     -H "Authorization: Key $FAL_API_KEY" \
     -H "Content-Type: application/json" \
     -d '{
-        "dialogue": [
+        "inputs": [
             {
-                "speaker_id": "'"$HOST_VOICE_ID"'",
+                "voice": "'"$HOST_VOICE_ID"'",
                 "text": "[warm] Welcome back to Hidden Nature. I'\''m Jeff, and today I'\''m sitting down with field ecologist Anju. [curious] Anju, welcome."
             },
             {
-                "speaker_id": "'"$EXPLORER_VOICE_ID"'",
+                "voice": "'"$EXPLORER_VOICE_ID"'",
                 "text": "[chuckles] Thanks for having me, Jeff. [sighs] I'\''m STILL finding forest dirt in my gear."
             },
             {
-                "speaker_id": "'"$HOST_VOICE_ID"'",
+                "voice": "'"$HOST_VOICE_ID"'",
                 "text": "[amused] So... mushroom apartments. That'\''s not exactly standard scientific terminology."
             },
             {
-                "speaker_id": "'"$EXPLORER_VOICE_ID"'",
+                "voice": "'"$EXPLORER_VOICE_ID"'",
                 "text": "[laughs] No, it'\''s not. But the first time I crouched down... [excited] that'\''s what I saw!"
             }
         ]
     }'
+
+# Download and save to podcast/segments/
+audio_url=$(echo "$response" | jq -r '.audio.url')
+curl -s -o "podcast/segments/segment_01_opening.mp3" "$audio_url"
+
+# After generating all segments, concatenate into full episode
+for segment in podcast/segments/segment_*.mp3; do
+    echo "file '$segment'"
+done > podcast/podcast_list.txt
+
+ffmpeg -f concat -safe 0 -i podcast/podcast_list.txt -c copy "podcast/full/PODCAST_FULL.mp3"
 
 # Audio Tags for Podcast Dialogue:
 # - Emotional: [excited], [curious], [thoughtful], [amazed], [concerned]
@@ -1259,11 +1295,11 @@ fi
 ```bash
 # Pad ALL narrations to exactly 8.000 seconds
 for scene in {1..24}; do
-    duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "audio/scene${scene}.mp3")
+    duration=$(ffprobe -v quiet -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "documentary/audio/scene${scene}.mp3")
     if (( $(echo "$duration < 8.0" | bc -l) )); then
         echo "Scene $scene: Padding required (${duration}s → 8.000s)"
-        ffmpeg -y -i "audio/scene${scene}.mp3" -filter_complex "[0:a]apad=pad_dur=8.0[padded]" -map "[padded]" -t 8.0 "audio/scene${scene}_fixed.mp3"
-        mv "audio/scene${scene}_fixed.mp3" "audio/scene${scene}.mp3"
+        ffmpeg -y -i "documentary/audio/scene${scene}.mp3" -filter_complex "[0:a]apad=pad_dur=8.0[padded]" -map "[padded]" -t 8.0 "audio/scene${scene}_fixed.mp3"
+        mv "audio/scene${scene}_fixed.mp3" "documentary/audio/scene${scene}.mp3"
     fi
 done
 ```
@@ -1278,7 +1314,7 @@ done
 echo "Checking audio consistency across all mixed scenes..."
 for scene in {1..24}; do
     props=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name,sample_rate,channels \
-        -of default=noprint_wrappers=1:nokey=1 "final/scene${scene}_mixed.mp4" | tr '\n' ' ')
+        -of default=noprint_wrappers=1:nokey=1 "documentary/final/scene${scene}_mixed.mp4" | tr '\n' ' ')
     
     if [[ "$props" != "aac 44100 1 " ]]; then
         echo "❌ Scene $scene: AUDIO MISMATCH - $props"
@@ -1286,13 +1322,13 @@ for scene in {1..24}; do
         echo "   REGENERATING with correct settings..."
         
         # Remix with explicit audio consistency parameters
-        ffmpeg -y -i "videos/scene${scene}.mp4" \
-                  -i "audio/scene${scene}.mp3" \
-                  -i "music/scene${scene}_music.wav" \
+        ffmpeg -y -i "documentary/videos/scene${scene}.mp4" \
+                  -i "documentary/audio/scene${scene}.mp3" \
+                  -i "documentary/music/scene${scene}_music.wav" \
             -filter_complex "[0:a]volume=0.175[ambient];[1:a]volume=1.3[narration];[2:a]volume=0.20[music];[ambient][narration][music]amix=inputs=3:duration=first:dropout_transition=0[audio]" \
             -map 0:v -map "[audio]" \
             -c:v copy -c:a aac -ac 1 -ar 44100 \
-            "final/scene${scene}_mixed.mp4" 2>/dev/null
+            "documentary/final/scene${scene}_mixed.mp4" 2>/dev/null
         
         echo "   ✅ Scene $scene remixed with consistent audio"
     else
@@ -1378,18 +1414,18 @@ ffmpeg -y -i "videos/scene${N}.mp4" -i "audio/scene${N}.mp3" \
     "podcast": {
         "endpoint": "https://fal.run/fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
         "model": "fal-ai/elevenlabs/text-to-dialogue/eleven-v3",
-        "dialogue": [
+        "inputs": [
             {
-                "speaker_id": "voice_id_1",
+                "voice": "voice_id_or_name",
                 "text": "[warm] Dialogue with audio tags... [pause] for expressiveness."
             },
             {
-                "speaker_id": "voice_id_2",
+                "voice": "voice_id_or_name",
                 "text": "[excited] Response with emotional cues!"
             }
         ],
         "audio_tags": "[emotional], [actions], [delivery], [pacing]",
-        "notes": "Use ElevenLabs MCP for voice discovery. Audio tags enhance natural conversation."
+        "notes": "Use 'voice' parameter (not 'speaker_id'). Use ElevenLabs MCP for voice discovery. Save segments to podcast/segments/, full to podcast/full/"
     }
 }
 ```
