@@ -62,7 +62,7 @@ Previous Expeditions:
 
 ---
 
-#mushroomdocumentary #fungi #mycology #naturedocumentary #forestecology #biodiversity #hiddenworlds #microhabitat #scienceeducation #naturephotography #fungiculture #ecology #forestfloor #documentaryfilm #scicomm
+#mushroomdocumentary, #fungi, #mycology, #naturedocumentary, #forestecology, #biodiversity, #hiddenworlds, #microhabitat, #scienceeducation, #naturephotography, #fungiculture, #ecology, #forestfloor, #documentaryfilm, #scicomm,
 ```
 
 ### Tags (50 max)
