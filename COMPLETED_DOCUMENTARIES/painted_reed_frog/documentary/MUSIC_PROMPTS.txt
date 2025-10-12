@@ -1,0 +1,24 @@
+Key: A minor, Tempo: 60 BPM (Largo), Instrumentation: Soft piano with gentle strings, morning mist atmosphere, subtle mystery, Mood: Awakening, quiet anticipation, hidden identity emerging into day, contemplative
+Key: D minor, Tempo: 70 BPM (Adagio), Instrumentation: Sparse strings, subtle tension, woodwinds suggesting danger nearby, Mood: Stillness, survival tension, hiding in plain sight, quiet danger
+Key: E minor, Tempo: 65 BPM (Adagio), Instrumentation: Solo cello, melancholic, yearning quality, distant echoes, Mood: Loneliness, waiting, sacrifice of hiding, patient endurance
+Key: C minor, Tempo: 80 BPM (Andante), Instrumentation: Staccato strings, low brass tension, heartbeat-like percussion, suspenseful, Mood: Danger, freeze response, survival instinct, tension and relief
+Key: G minor, Tempo: 55 BPM (Lento), Instrumentation: Sparse ambient pads, minimal percussion, heat shimmer quality, Mood: Stillness, patience, endurance, waiting through discomfort
+Key: A minor, Tempo: 62 BPM (Larghetto), Instrumentation: Solo piano, delicate and sad, strings entering softly, Mood: Isolation, emotional cost, watching life pass by, yearning
+Key: E Major, Tempo: 68 BPM (Andante), Instrumentation: Warm strings beginning to swell, piano arpeggios, anticipatory, Mood: Anticipation, change approaching, hope emerging, transformation beginning
+Key: C Major, Tempo: 72 BPM (Andante), Instrumentation: Building strings, ascending piano, growing intensity, expectant, Mood: Anticipation building, moment before transformation, excitement, readiness
+Key: F Major, Tempo: 75 BPM (Andante), Instrumentation: Shimmering strings, celesta, magical quality, gentle wonder, Mood: Wonder, first reveal, magic beginning, transformation starting, awe
+Key: D Major, Tempo: 82 BPM (Moderato), Instrumentation: Rhythmic strings, pulsing synth pads suggesting cellular activity, scientific wonder, Mood: Scientific marvel, biological magic, process unfolding, active transformation
+Key: A Major, Tempo: 88 BPM (Moderato), Instrumentation: Full orchestra swelling, triumphant brass, ascending melodies, crescendo building, Mood: Revelation, bloom, colors exploding, triumph, beauty unleashed
+Key: E Major, Tempo: 90 BPM (Moderato), Instrumentation: Full orchestral climax, triumphant horns, soaring strings, celebration, Mood: Complete transformation, triumph, beauty revealed, cathartic release, glory
+Key: C Major, Tempo: 85 BPM (Moderato), Instrumentation: Joyful strings, playful woodwinds, celebratory, freedom expressed, Mood: Freedom, expression, true self revealed, joy, liberation
+Key: G Major, Tempo: 92 BPM (Moderato), Instrumentation: Rich orchestration, multiple melodic lines suggesting various creatures, layered complexity, Mood: Community, ecosystem awakening, night world alive, harmony
+Key: D Major, Tempo: 78 BPM (Andante), Instrumentation: Ascending flute melody, vocal-like quality, strings supporting, voice finding itself, Mood: Voice emerging, expression, announcement, claiming space
+Key: A Major, Tempo: 95 BPM (Moderato), Instrumentation: Dancing strings, free-flowing melody, exuberant, unbounded, Mood: Freedom, living fully, true self expressed, joy, confidence
+Key: E Major, Tempo: 100 BPM (Allegretto), Instrumentation: Multiple competing melodic lines, various instruments suggesting different voices, energetic, Mood: Competition, display, multiple voices, vibrant energy, mating calls
+Key: F Major, Tempo: 75 BPM (Andante), Instrumentation: Thoughtful strings, decision theme, gentle but purposeful, Mood: Choice, assessment, instinct, biological imperative, selection
+Key: C Major, Tempo: 82 BPM (Andante), Instrumentation: Duet between instruments, intimate strings, romantic melody, synchronized rhythm, Mood: Romance, courtship, partnership, synchronized beauty, purpose fulfilled
+Key: B minor, Tempo: 98 BPM (Allegro), Instrumentation: Quick strings, flutter-tongue brass suggesting bat flight, tension then resolution, Mood: Brief danger, ecological wisdom, safety in night, understanding
+Key: A Major, Tempo: 72 BPM (Andante), Instrumentation: Full orchestra, grand and sweeping, majestic beauty, revelation theme, Mood: Wonder, revelation, hidden world revealed, grand beauty, ecosystem appreciation
+Key: E minor, Tempo: 65 BPM (Adagio), Instrumentation: Strings becoming gentler, melancholic piano, bittersweet resolution, Mood: Bittersweet, time passing, beauty fading, cycle continuing, gentle sadness
+Key: D minor, Tempo: 58 BPM (Lento), Instrumentation: Descending strings, piano resolving downward, colors fading musically, Mood: Transformation reversal, colors fading, return to hiding, necessary sacrifice, resignation
+Key: A minor transitioning to A Major, Tempo: 68 BPM (Andante), Instrumentation: Gentle resolution, minor to major shift suggesting hope, cyclical theme returning, Mood: Cycle complete, hope remains, double life continues, resilience, beauty will return, acceptance

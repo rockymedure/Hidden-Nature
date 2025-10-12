@@ -1,0 +1,105 @@
+#!/bin/bash
+source ../../../../.env
+
+VIDEO_ENDPOINT="https://fal.run/fal-ai/veo3/fast"
+SEED=77777
+mkdir -p videos
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📱 GENERATING ALL 24 MOBILE VIDEOS (9:16)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Same visual prompts as 16:9, but with 9:16 aspect ratio
+declare -a visuals=(
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, sitting on wetland reed stem, dull brownish-gray mottled camouflage coloration, unremarkable appearance. Pre-dawn wetland with soft misty light, faint traces of fading color on frog's skin disappearing as morning light grows, peaceful awakening moment, reed swaying gently, macro nature documentary cinematography, shallow depth of field, natural lighting transition from night to day, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, pressed flat against moss-covered bark, dull brownish-gray mottled camouflage coloration, unremarkable appearance, perfectly blending with textured bark background. Macro shot showing frog's camouflage effectiveness against moss and bark, large heron silhouette blurred in background walking past, morning daylight, wetland environment, frog completely still and flattened, professional wildlife photography, survival behavior, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, sitting alone on broad wetland leaf, dull brownish-gray mottled camouflage coloration, unremarkable appearance. Wide shot of wetland with multiple reeds and vegetation, other frogs barely visible in distance on different perches, frog appears isolated and alone on her leaf, midday bright lighting, sense of loneliness despite others nearby, patient waiting posture, shallow depth of field emphasizing isolation, no speech, ambient wetland sounds with distant frog calls"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, completely frozen clinging to underside of broad leaf, dull brownish-gray mottled camouflage coloration, unremarkable appearance. Tense macro shot with snake's head visible in frame investigating nearby vegetation, frog absolutely motionless in vulnerable exposed position, camouflage working perfectly, snake's scales catching light, dramatic moment of survival, shallow focus on frog with snake slightly blurred, wetland environment, no speech, ambient only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, sitting very still on wetland reed stem, dull brownish-gray mottled camouflage coloration, unremarkable appearance. Harsh midday sunlight, heat haze visible, frog minimizing movement, conserving energy, environment feels hot and still, time-lapse quality showing minimal change, wetland at peak heat, patient waiting, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, sitting low in grass blades, dull brownish-gray mottled camouflage coloration, unremarkable appearance. Wetland life happening around her - dragonflies interacting, other insects mating, birds calling, frog remains still and isolated in vegetation, emotional moment showing cost of survival, beautiful wetland ecosystem active while she hides, late afternoon lighting, melancholic mood, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, moving toward prominent smooth rock near water's edge, dull brownish-gray mottled camouflage coloration with very first subtle hints of color beginning to appear, unremarkable appearance transitioning. Golden hour lighting, sun descending, shadows lengthening, frog actively moving to display position, anticipation visible in movement, wetland transitioning from day to evening, beautiful warm light, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, positioning herself on prominent smooth rock, dull brownish-gray coloration with subtle color hints increasing, unremarkable appearance starting to shift. Twilight deepening, dramatic lighting, frog adjusting position on rock for optimal display, body language showing readiness, anticipation palpable, wetland transitioning to night, magical hour lighting, rock providing perfect display stage, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, sitting on wetland reed stem, colors transitioning from dull to vibrant with first small patches of purple emerging from gray background, emerging patterns. Macro close-up on frog's skin showing microscopic color changes beginning, twilight lighting, magical moment of first color appearance, beautiful transition, wetland at dusk, wonder and beauty, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, colors actively transitioning from dull to vibrant with visible color cells changing, patterns emerging rapidly. Extreme macro shot showing skin surface with color cells visibly activating, scientific detail, time-lapse quality showing rapid change, chromatophores expanding and contracting, beautiful biological process, educational visualization, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, colors rapidly transitioning from partially dull to almost fully vibrant with intense purples, oranges, yellows emerging, marbled patterns becoming vivid. Time-lapse style showing accelerated color transformation, colors blooming across skin like paint spreading, dramatic visual reveal, darkening twilight emphasizing colors, stunning transformation moment, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on prominent smooth rock, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta, full transformation complete. Stunning macro shot showing complete color transformation on display rock, frog in full vibrant glory, marbled patterns clearly visible, dramatic nighttime lighting making colors pop, breathtaking beauty on perfect stage, wetland at night, complete reveal moment, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, stretching and displaying on prominent smooth rock, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta. Frog actively moving, stretching limbs, showing off colors on display perch, proud display behavior, confident body language contrasting with day's stillness, nighttime lighting, sense of freedom and expression, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta, surrounded by awakening night life. Wide shot of wetland at night showing multiple colorful frogs appearing on reeds, other night creatures becoming active, moths flying, ecosystem coming alive, beautiful nighttime wetland scene, sense of community and activity, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, throat inflating with calling, on wetland reed stem, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta. Macro shot showing frog's vocal sac inflating as she calls, vibrant colors on full display, night lighting, moment of vocal expression after day of silence, confident display, no speech, ambient wetland sounds with frog calls"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, moving actively and boldly between wetland vegetation, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta. Frog leaping gracefully from reed stem to broad leaf to grass blade, confident movements contrasting with day's stillness, displaying colors openly during movement, nighttime wetland, sense of liberation and freedom, beautiful active display, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta, with several other colorful male frogs visible nearby. Wide shot showing multiple vibrantly colored male frogs on different reeds, all displaying and calling, competitive display behavior, wetland lit up with various frog colors, beautiful nighttime scene, visual spectacle, no speech, ambient wetland sounds with multiple frog calls"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, perched on broad wetland leaf observing, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta. Frog's gaze directed toward an exceptionally vibrant male frog in distance on another leaf, decision-making moment, comparison of color displays, nighttime wetland, thoughtful observation behavior, mate selection in progress, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on lily pad floating near water surface with male partner, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta. Two frogs performing synchronized courtship display on lily pad, moving in patterns together, colors complementing each other reflected in water below, beautiful dance of nature, intimate romantic moment, nighttime wetland, elegant display behavior, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta, with bat silhouette swooping past. Bat flying through frame in background, frogs remaining colorful and undisturbed, dramatic moment showing why night color display is safe, ecological explanation, nighttime wetland, bat uses echolocation visualization if possible, no speech, ambient wetland sounds with bat wing beats"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta. Naturalistic wide shot of nighttime wetland showing main frog in foreground with 3-4 other colorful frogs visible on different reeds in mid-ground and background, natural spacing between frogs, subtle moonlight illumination, realistic nighttime wetland atmosphere, documentary photography style, authentic frog behavior, natural wetland vegetation, organic composition, no speech, ambient wetland sounds with distant frog calls"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, close to male partner on broad wetland leaf, brilliant marbled pattern of vivid purple, electric orange, bright yellow, deep magenta still vibrant but pre-dawn light growing. Two frogs together on shared leaf, sky beginning to show first light, bittersweet moment, colors still vibrant but change approaching, pre-dawn wetland, sense of time passing, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, on wetland reed stem, colors actively transitioning from vibrant brilliant marbled pattern of purple, orange, yellow, magenta back toward dull brownish-gray, reverse transformation. Time-lapse style showing color transformation in reverse, vibrant colors gradually fading and dulling, sunrise lighting growing, painting erasing itself, beautiful but sad transformation, wetland transitioning to day, no speech, ambient wetland sounds only"
+
+"Painted Reed Frog (Hyperolius marmoratus) with smooth amphibian skin, compact body typical of reed frogs, large expressive eyes, delicate limbs with adhesive toe pads, sitting on wetland reed stem, dull brownish-gray mottled camouflage coloration, unremarkable appearance, transformation back complete. Frog once again camouflaged and still, morning light fully arrived, cycle complete, sense of both resignation and hope, wetland in daylight, frog invisible again but alive, this is her double life, cyclical existence, no speech, ambient wetland sounds only"
+)
+
+# Generate all videos in parallel (staggered)
+for i in {0..23}; do
+    scene=$((i + 1))
+    visual_prompt="${visuals[$i]}"
+    
+    (
+        echo "📱 Scene $(printf "%02d" $scene): Generating mobile video (9:16, seed $SEED)..."
+        response=$(curl -s -X POST "$VIDEO_ENDPOINT" \
+            -H "Authorization: Key $FAL_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+                \"prompt\": \"$visual_prompt\",
+                \"duration\": 8,
+                \"aspect_ratio\": \"9:16\",
+                \"resolution\": \"1080p\",
+                \"seed\": $SEED,
+                \"generate_audio\": true
+            }")
+        
+        video_url=$(echo "$response" | jq -r '.video.url // empty')
+        if [[ -n "$video_url" ]]; then
+            curl -s -o "videos/scene$(printf "%02d" $scene).mp4" "$video_url"
+            size=$(ls -lh "videos/scene$(printf "%02d" $scene).mp4" | awk '{print $5}')
+            echo "   ✅ Scene $(printf "%02d" $scene): Mobile video saved ($size)"
+        else
+            echo "   ❌ Scene $(printf "%02d" $scene): Failed"
+            echo "$response" | jq '.'
+        fi
+    ) &
+    
+    sleep 2  # Stagger API calls
+done
+
+wait
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ ALL 24 MOBILE VIDEOS COMPLETE"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Total mobile videos:" $(ls videos/*.mp4 2>/dev/null | wc -l)
+
