@@ -1,0 +1,2 @@
+file 'music/scene1.mp3'
+file 'music/scene3.mp3'
