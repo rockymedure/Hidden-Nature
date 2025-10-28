@@ -1,2 +1,0 @@
-file 'scene1_mixed.mp4'
-file 'scene3_mixed.mp4'

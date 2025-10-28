@@ -1,2 +1,0 @@
-file 'videos/scene1.mp4'
-file 'videos/scene2.mp4'

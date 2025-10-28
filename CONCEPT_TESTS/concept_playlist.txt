@@ -1,6 +1,0 @@
-file 'Jumping_Spider_16s.mp4'
-file 'Cuttlefish_16s.mp4'
-file 'Tardigrade_16s.mp4'
-file 'Venus_Flytrap_16s.mp4'
-file 'Chameleon_16s.mp4'
-file 'Monarch_Butterfly_16s.mp4'
